@@ -84,7 +84,7 @@ func Serve(r *gin.Engine) {
 		}
 
 		// Attach file to products
-		p.Image = "http://localhost:8080/" + filename
+		p.Image = os.Getenv("HOST") + "/" + filename
 
 		products = append(products, p)
 
