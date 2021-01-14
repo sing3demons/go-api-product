@@ -29,3 +29,21 @@ go mod init kp-app
         "staticcheck": false,
     }
 }
+
+//upload file
+// Get file
+		file, _ := ctx.FormFile("image")
+
+		// Create file
+		path := "uploads/products/" + strconv.Itoa(int(p.ID)) // ID => 8, uploads/articles/8/image.png
+		os.MkdirAll(path, 0755)                               // -> uploads/products/8
+
+		// Upload file
+		filename := path + file.Filename
+		if err := ctx.SaveUploadedFile(file, filename); err != nil {
+			log.Fatal(err.Error())
+		}
+
+		// Attach file to products
+		p.Image = "http://localhost:8080/" + filename
+      

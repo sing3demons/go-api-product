@@ -69,6 +69,7 @@ func Serve(r *gin.Engine) {
 			Title: form.Title,
 			Body:  form.Body,
 		}
+
 		// Get file
 		file, _ := ctx.FormFile("image")
 
@@ -77,7 +78,7 @@ func Serve(r *gin.Engine) {
 		os.MkdirAll(path, 0755)                               // -> uploads/products/8
 
 		// Upload file
-		filename := path + file.Filename
+		filename := path + "/" + file.Filename
 		if err := ctx.SaveUploadedFile(file, filename); err != nil {
 			log.Fatal(err.Error())
 		}
