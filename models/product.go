@@ -1,14 +1,12 @@
 package models
 
-type Product struct {
-	ID    uint   `json:"id"`
-	Title string `json:"title"`
-	Body  string `json:"body"`
-}
+import "github.com/jinzhu/gorm"
 
-// gorm.Model
-// ID    uint   `json:"id"`
-// Name string `json:"name"`
-// Desc  string `json:"desc"`
-// Price string `json:"price"`
-// Image string `json:"image"`
+type Product struct {
+	gorm.Model
+	ID    uint   `gorm:"unique;not null"`
+	Name  string `gorm:"not null"`
+	Desc  string `gorm:"not null"`
+	Price int    `gorm:"not null"`
+	Image string `gorm:"not null"`
+}
