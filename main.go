@@ -1,7 +1,9 @@
 package main
 
 import (
-	"kp-app/routes"
+	"app/config"
+	"app/migrations"
+	"app/routes"
 	"log"
 	"os"
 
@@ -15,6 +17,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	config.InitDB()
+	defer config.CloseDB()
+	migrations.Migrate()
+
 	r := gin.Default()
 
 	r.Static("/uploads", "./uploads")

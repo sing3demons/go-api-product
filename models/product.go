@@ -1,10 +1,14 @@
 package models
 
-
-
-type Product struct{
+type Product struct {
 	ID    uint   `json:"id"`
 	Title string `json:"title"`
 	Body  string `json:"body"`
-	Image string `json:"image"`
 }
+
+// gorm.Model
+// ID    uint   `json:"id"`
+// Name string `json:"name"`
+// Desc  string `json:"desc"`
+// Price string `json:"price"`
+// Image string `json:"image"`

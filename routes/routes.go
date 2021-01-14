@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"kp-app/controllers"
+	"app/controllers"
 
 	"github.com/gin-gonic/gin"
 )
