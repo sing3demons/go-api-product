@@ -8,9 +8,14 @@ import (
 )
 
 type product struct {
-	ID    uint
-	Title string
-	Body  string
+	ID    uint   `json:"id"`
+	Title string `json:"title"`
+	Body  string `json:"body"`
+}
+
+type createProductForm struct {
+	Title string `json:"title" binding:"required"`
+	Body  string `json:"body" binding:"required"`
 }
 
 //Serve - middleware
@@ -45,5 +50,23 @@ func Serve(r *gin.Engine) {
 			}
 		}
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "Not Found"})
+	})
+
+	productGroup.POST("", func(ctx *gin.Context) {
+		form := createProductForm{}
+		if err := ctx.ShouldBindJSON(&form); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		p := product{
+			ID:    uint(len(products) + 1),
+			Title: form.Title,
+			Body:  form.Body,
+		}
+
+		products = append(products, p)
+
+		ctx.JSON(http.StatusOK, gin.H{"message": p})
 	})
 }
