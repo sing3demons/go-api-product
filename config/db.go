@@ -1,6 +1,7 @@
 package config
 
 import (
+	"app/models"
 	"log"
 	"os"
 
@@ -15,12 +16,13 @@ var db *gorm.DB
 //InitDB - connenct database
 func InitDB() {
 	var err error
-	// db, err := gorm.Open("sqlite3", "./gorm.db")
+	// db, err := gorm.Open("sqlite3", "./tmp/gorm.db")
 	db, err = gorm.Open("postgres", os.Getenv("DATABASE_CONNECTION"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	db.LogMode(gin.Mode() == gin.ReleaseMode)
+	db.AutoMigrate(&models.Product{})
 }
 
 //GetDB - return db

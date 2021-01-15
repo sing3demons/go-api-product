@@ -13,7 +13,7 @@ func Migrate() {
 		db,
 		gormigrate.DefaultOptions,
 		[]*gormigrate.Migration{
-			m1610604415CreateTableProductsTable(),
+			m1610674464CreateTableProductsTable(),
 		},
 	)
 

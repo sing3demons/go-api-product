@@ -2,7 +2,6 @@ package main
 
 import (
 	"app/config"
-	"app/migrations"
 	"app/routes"
 	"log"
 	"os"
@@ -20,7 +19,7 @@ func main() {
 
 	config.InitDB()
 	defer config.CloseDB()
-	migrations.Migrate()
+	// migrations.Migrate()
 
 	r := gin.Default()
 

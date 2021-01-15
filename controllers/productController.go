@@ -14,7 +14,9 @@ import (
 )
 
 //Product - struct
-type Product struct{ DB *gorm.DB }
+type Product struct {
+	DB *gorm.DB
+}
 
 type createProductForm struct {
 	Name  string                `form:"name" binding:"required"`
@@ -23,7 +25,7 @@ type createProductForm struct {
 	Image *multipart.FileHeader `form:"image" binding:"required"`
 }
 
-type createProductRespons struct {
+type productRespons struct {
 	ID    uint   `json:"id"`
 	Name  string `json:"name"`
 	Desc  string `json:"desc"`
@@ -31,10 +33,18 @@ type createProductRespons struct {
 	Image string `json:"image"`
 }
 
+// FindAll - query-database-all
 func (p *Product) FindAll(ctx *gin.Context) {
+	var products []models.Product
 
+	p.DB.Find(&products)
+
+	var serializedProduct []productRespons
+	copier.Copy(&serializedProduct, &products)
+	ctx.JSON(http.StatusOK, gin.H{"products": serializedProduct})
 }
 
+// FindOne - first 
 func (p *Product) FindOne(ctx *gin.Context) {
 
 }
@@ -64,7 +74,7 @@ func (p *Product) Create(ctx *gin.Context) {
 
 	p.setProductImage(ctx, &product)
 
-	serializedProduct := createProductRespons{}
+	serializedProduct := productRespons{}
 	copier.Copy(&serializedProduct, &product)
 
 	ctx.JSON(http.StatusCreated, gin.H{"product": serializedProduct})
