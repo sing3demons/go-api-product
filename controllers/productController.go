@@ -37,15 +37,27 @@ type productRespons struct {
 func (p *Product) FindAll(ctx *gin.Context) {
 	var products []models.Product
 
-	p.DB.Find(&products)
+	if err := p.DB.Find(&products).Error; err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 
 	var serializedProduct []productRespons
 	copier.Copy(&serializedProduct, &products)
 	ctx.JSON(http.StatusOK, gin.H{"products": serializedProduct})
 }
 
-// FindOne - first 
+// FindOne - first
 func (p *Product) FindOne(ctx *gin.Context) {
+	product, err := p.findProductByID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	serializedProduct := productRespons{}
+	copier.Copy(&serializedProduct, &product)
+	ctx.JSON(http.StatusOK, gin.H{"product": serializedProduct})
 
 }
 
@@ -56,13 +68,6 @@ func (p *Product) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
-
-	// form => product
-	// product := models.Product{
-	// 	Name:  form.Name,
-	// 	Desc:  form.Desc,
-	// 	Price: form.Price,
-	// }
 
 	var product models.Product
 	copier.Copy(&product, &form)
@@ -88,25 +93,32 @@ func (p *Product) setProductImage(ctx *gin.Context, products *models.Product) er
 	}
 
 	if products.Image == "" {
-		//1. ตัด http://localhost:80800/uploads/prosucts/<ID>/image.png ให้เหลือ /uploads/prosucts/<ID>/image.png
 		products.Image = strings.Replace(products.Image, os.Getenv("HOST"), "", 1)
-		//2. แทนค่าพาธปัจจุบัน<WD>/uploads/prosucts/<ID>/image.png
 		pwd, _ := os.Getwd()
-		//3.remove <WD>/uploads/prosucts/<ID>/image.png
 		os.Remove(pwd + products.Image)
 	}
 
 	path := "uploads/products/" + strconv.Itoa(int(products.ID))
 	os.MkdirAll(path, 0755)
 
-	filename := path + file.Filename
+	filename := path + "/" + file.Filename
 	if err := ctx.SaveUploadedFile(file, filename); err != nil {
 		return err
 	}
 
 	products.Image = os.Getenv("HOST") + "/" + filename
-
 	p.DB.Save(products)
 
 	return nil
+}
+
+func (p *Product) findProductByID(ctx *gin.Context) (*models.Product, error) {
+	var product models.Product
+	id := ctx.Param("id")
+
+	if err := p.DB.First(&product, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &product, nil
 }
