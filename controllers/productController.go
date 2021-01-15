@@ -25,6 +25,13 @@ type createProductForm struct {
 	Image *multipart.FileHeader `form:"image" binding:"required"`
 }
 
+type updateProductForm struct {
+	Name  string                `form:"name"`
+	Desc  string                `form:"desc"`
+	Price int                   `form:"price"`
+	Image *multipart.FileHeader `form:"image"`
+}
+
 type productRespons struct {
 	ID    uint   `json:"id"`
 	Name  string `json:"name"`
@@ -84,6 +91,44 @@ func (p *Product) Create(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{"product": serializedProduct})
 
+}
+
+//Update - update --> patch
+func (p *Product) Update(ctx *gin.Context) {
+	var form updateProductForm
+	if err := ctx.ShouldBind(&form); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		return
+	}
+
+	product, err := p.findProductByID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	}
+
+	if err := p.DB.Model(&product).Update(&form).Error; err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error})
+		return
+	}
+
+	p.setProductImage(ctx, product)
+
+	var serializedProduct productRespons
+	copier.Copy(&serializedProduct, &product)
+	ctx.JSON(http.StatusOK, gin.H{"product": serializedProduct})
+}
+
+//Delete - delete
+func (p *Product) Delete(ctx *gin.Context) {
+	product, err := p.findProductByID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	p.DB.Unscoped().Delete(&product)
+
+	ctx.Status(http.StatusNoContent)
 }
 
 func (p *Product) setProductImage(ctx *gin.Context, products *models.Product) error {

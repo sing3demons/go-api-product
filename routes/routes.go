@@ -16,5 +16,7 @@ func Serve(r *gin.Engine) {
 		productGroup.GET("", productController.FindAll)
 		productGroup.GET("/:id", productController.FindOne)
 		productGroup.POST("", productController.Create)
+		productGroup.PATCH("/:id", productController.Update)
+		productGroup.DELETE("/:id", productController.Delete)
 	}
 }

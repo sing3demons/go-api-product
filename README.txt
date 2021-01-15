@@ -70,7 +70,7 @@ func (p *Product) setProductImage(ctx *gin.Context, products *models.Product) er
 	path := "uploads/products/" + strconv.Itoa(int(products.ID))
 	os.MkdirAll(path, 0755)
 
-	filename := path + file.Filename
+	filename := path + "/"+ file.Filename
 	if err := ctx.SaveUploadedFile(file, filename); err != nil {
 		return err
 	}
