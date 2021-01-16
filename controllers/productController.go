@@ -40,18 +40,25 @@ type productRespons struct {
 	Image string `json:"image"`
 }
 
+type producsPaging struct {
+	Items  []productRespons `json:"items"`
+	Paging *pagingResult    `json:"paging"`
+}
+
 // FindAll - query-database-all
 func (p *Product) FindAll(ctx *gin.Context) {
 	var products []models.Product
 
-	if err := p.DB.Find(&products).Error; err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
+	paging := pagingResource(ctx, p.DB, &products)
+
+	// if err := p.DB.Find(&products).Error; err != nil {
+	// 	ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
 	var serializedProduct []productRespons
 	copier.Copy(&serializedProduct, &products)
-	ctx.JSON(http.StatusOK, gin.H{"products": serializedProduct})
+	ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
 }
 
 // FindOne - first
