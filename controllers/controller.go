@@ -28,7 +28,7 @@ func (p *pagination) paginate() *pagingResult {
 	limit, _ := strconv.Atoi(p.ctx.DefaultQuery("limit", "12"))
 
 	ch := make(chan int)
-	go countRecords(p.query, p.records, ch)
+	go p.countRecords(ch)
 
 	offset := (page - 1) * limit
 	p.query.Limit(limit).Offset(offset).Find(p.records)
