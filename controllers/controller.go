@@ -21,34 +21,36 @@ func pagingResource(ctx *gin.Context, query *gorm.DB, records interface{}) *pagi
 	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "12"))
 
-	var count int
-	query.Model(records).Count(&count)
+	ch := make(chan int)
+	go countRecords(query, records, ch)
 
-	// 3. Find Records
-	// limit, offset
-	// limit => 10
-	// page => 1, 1 - 10, offset => 0
-	// page => 2, 11 - 20, offset => 10
-	// page => 3, 21 - 30, offset => 20
 	offset := (page - 1) * limit
-	query.Offset(offset).Limit(limit).Find(records)
+	query.Limit(limit).Offset(offset).Find(records)
 
-	// 4. total page
+	count := <-ch
 	totalPage := int(math.Ceil(float64(count) / float64(limit)))
-	// 5. Find nextPage
+
 	var nextPage int
 	if nextPage == totalPage {
 		nextPage = totalPage
 	} else {
-		nextPage = totalPage + 1
+		nextPage = page + 1
 	}
-	// 6. create pagingResult
+
 	return &pagingResult{
 		Page:      page,
 		Limit:     limit,
+		Count:     count,
 		PrevPage:  page - 1,
 		NextPage:  nextPage,
-		Count:     count,
 		TotalPage: totalPage,
 	}
+
+}
+
+func countRecords(query *gorm.DB, records interface{}, ch chan int) {
+	var count int
+	query.Model(records).Count(&count)
+
+	ch <- count
 }

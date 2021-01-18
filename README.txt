@@ -85,18 +85,18 @@ func (p *Product) setProductImage(ctx *gin.Context, products *models.Product) er
 
 func pagingResource(ctx *gin.Context, query *gorm.DB, records interface{}) *pagingResult {
 	// 1. Get limit, page ?limit=10&page=2
-	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1")) //ดึงquery-string มาเก็บเป็น int
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "12"))
 	// 2. count records
 	var count int
-	query.Model(records).Count(&count)
+	query.Model(records).Count(&count) //ค้นหาข้อมูลในdatabase นับด้วย Count ส่งไปที่*count
 
 	// 3. Find Records
 	// limit, offset
 	// limit => 10
-	// page => 1, 1 - 10, offset => 0
-	// page => 2, 11 - 20, offset => 10
-	// page => 3, 21 - 30, offset => 20
+	// page => 1, 1 - 10, offset => 0 		// ถ้า limit มีค่า 10 , page คือ 1 ,  offset ต้องเท่ากับ 0
+	// page => 2, 11 - 20, offset => 10 	// ถ้า limit มีค่า 10 , page คือ 2 ,  offset ต้องเท่ากับ 10
+	// page => 3, 21 - 30, offset => 20 	// ถ้า limit มีค่า 10 , page คือ 3 ,  offset ต้องเท่ากับ 20
 	offset := (page - 1) * limit
 	query.Limit(limit).Offset(offset).Find(records)
 
