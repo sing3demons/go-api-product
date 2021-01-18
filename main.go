@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -22,8 +23,12 @@ func main() {
 	defer config.CloseDB()
 	migrations.Migrate()
 
-	r := gin.Default()
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AddAllowHeaders("Authorization")
 
+	r := gin.Default()
+	r.Use(cors.New(corsConfig)) //cors
 	r.Static("/uploads", "./uploads")
 
 	//สร้าง folder

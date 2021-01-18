@@ -48,7 +48,15 @@ func (c *Category) FindAll(ctx *gin.Context) {
 }
 
 func (c *Category) FindOne(ctx *gin.Context) {
+	category, err := c.findCategoryByID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 
+	var serializedCategory categoryResponse
+	copier.Copy(&serializedCategory, &category)
+	ctx.JSON(http.StatusOK, gin.H{"category": serializedCategory})
 }
 
 func (c *Category) Create(ctx *gin.Context) {
@@ -82,6 +90,7 @@ func (c *Category) Update(ctx *gin.Context) {
 	category, err := c.findCategoryByID(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
 	}
 
 	if err := c.DB.Model(&category).Update(&form).Error; err != nil {
@@ -103,7 +112,7 @@ func (c *Category) findCategoryByID(ctx *gin.Context) (*models.Category, error) 
 	var category models.Category
 	id := ctx.Param("id")
 
-	if err := c.DB.First(&category, id).Error; err != nil {
+	if err := c.DB.Preload("Product").First(&category, id).Error; err != nil {
 		return nil, err
 	}
 
