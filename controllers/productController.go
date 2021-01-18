@@ -19,25 +19,32 @@ type Product struct {
 }
 
 type createProductForm struct {
-	Name  string                `form:"name" binding:"required"`
-	Desc  string                `form:"desc" binding:"required"`
-	Price int                   `form:"price" binding:"required"`
-	Image *multipart.FileHeader `form:"image" binding:"required"`
+	Name       string                `form:"name" binding:"required"`
+	Desc       string                `form:"desc" binding:"required"`
+	Price      int                   `form:"price" binding:"required"`
+	Image      *multipart.FileHeader `form:"image" binding:"required"`
+	CategoryID uint                  `form:"categoryId" binding:"required"`
 }
 
 type updateProductForm struct {
-	Name  string                `form:"name"`
-	Desc  string                `form:"desc"`
-	Price int                   `form:"price"`
-	Image *multipart.FileHeader `form:"image"`
+	Name       string                `form:"name"`
+	Desc       string                `form:"desc"`
+	Price      int                   `form:"price"`
+	Image      *multipart.FileHeader `form:"image"`
+	CategoryID uint                  `form:"categoryId" binding:"required"`
 }
 
 type productRespons struct {
-	ID    uint   `json:"id"`
-	Name  string `json:"name"`
-	Desc  string `json:"desc"`
-	Price int    `json:"price"`
-	Image string `json:"image"`
+	ID         uint   `json:"id"`
+	Name       string `json:"name"`
+	Desc       string `json:"desc"`
+	Price      int    `json:"price"`
+	Image      string `json:"image"`
+	CategoryID uint   `form:"categoryId" binding:"required"`
+	Category   struct {
+		ID   uint   `json:"id"`
+		Name string `json:"name"`
+	} `json:"category"`
 }
 
 type producsPaging struct {
@@ -49,8 +56,7 @@ type producsPaging struct {
 func (p *Product) FindAll(ctx *gin.Context) {
 	var products []models.Product
 
-
-	pagination := pagination{ctx: ctx, query: p.DB, records: &products}
+	pagination := pagination{ctx: ctx, query: p.DB.Preload("Category"), records: &products}
 	paging := pagination.paginate()
 
 	// if err := p.DB.Find(&products).Error; err != nil {
@@ -88,7 +94,7 @@ func (p *Product) Create(ctx *gin.Context) {
 	var product models.Product
 	copier.Copy(&product, &form)
 
-	if err := p.DB.Create(&product).Error; err != nil {
+	if err := p.DB.Preload("Category").Create(&product).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
@@ -170,7 +176,7 @@ func (p *Product) findProductByID(ctx *gin.Context) (*models.Product, error) {
 	var product models.Product
 	id := ctx.Param("id")
 
-	if err := p.DB.First(&product, id).Error; err != nil {
+	if err := p.DB.Preload("Category").First(&product, id).Error; err != nil {
 		return nil, err
 	}
 

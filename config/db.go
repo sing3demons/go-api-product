@@ -1,7 +1,6 @@
 package config
 
 import (
-	"app/models"
 	"log"
 	"os"
 
@@ -22,7 +21,8 @@ func InitDB() {
 		log.Fatal(err)
 	}
 	db.LogMode(gin.Mode() == gin.ReleaseMode)
-	db.AutoMigrate(&models.Product{})
+	// db.AutoMigrate(&models.Product{})
+	// db.DropTable("products", "categories", "migrations")
 }
 
 //GetDB - return db
