@@ -105,7 +105,15 @@ func (c *Category) Update(ctx *gin.Context) {
 }
 
 func (c *Category) Delete(ctx *gin.Context) {
+	category, err := c.findCategoryByID(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
 
+	c.DB.Unscoped().Delete(&category)
+
+	ctx.Status(http.StatusNoContent)
 }
 
 func (c *Category) findCategoryByID(ctx *gin.Context) (*models.Category, error) {
