@@ -9,6 +9,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+//Category - Method Receiver
 type Category struct {
 	DB *gorm.DB
 }
@@ -34,6 +35,7 @@ type updateCategoryForm struct {
 	Name string `json:"name"`
 }
 
+// FindAll - query all categories
 func (c *Category) FindAll(ctx *gin.Context) {
 	var categories []models.Category
 
@@ -47,6 +49,7 @@ func (c *Category) FindAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"category": serializedCategory})
 }
 
+// FindOne - first query
 func (c *Category) FindOne(ctx *gin.Context) {
 	category, err := c.findCategoryByID(ctx)
 	if err != nil {
@@ -59,6 +62,7 @@ func (c *Category) FindOne(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"category": serializedCategory})
 }
 
+// Create - create
 func (c *Category) Create(ctx *gin.Context) {
 	var form createCategoryForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {
@@ -103,7 +107,7 @@ func (c *Category) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"category": serializedProduct})
 
 }
-
+// Delete - remove category
 func (c *Category) Delete(ctx *gin.Context) {
 	category, err := c.findCategoryByID(ctx)
 	if err != nil {

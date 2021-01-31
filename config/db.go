@@ -22,7 +22,7 @@ func InitDB() {
 	}
 	db.LogMode(gin.Mode() == gin.ReleaseMode)
 	// db.AutoMigrate(&models.Product{})
-	// db.DropTable("products", "migrations")
+	// db.DropTable("users", "migrations")
 }
 
 //GetDB - return db

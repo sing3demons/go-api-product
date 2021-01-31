@@ -15,6 +15,7 @@ func Migrate() {
 		[]*gormigrate.Migration{
 			m1610674464CreateTableProductsTable(),
 			m1610950017CreactCategoryTable(),
+			m1612129431CreactUserable(),
 		},
 	)
 
