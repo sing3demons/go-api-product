@@ -3,6 +3,7 @@ package routes
 import (
 	"app/config"
 	"app/controllers"
+	"app/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +17,7 @@ func Serve(r *gin.Engine) {
 	userController := controllers.Auth{DB: db}
 	{
 		userGroup.POST("/register", userController.Register)
+		userGroup.POST("/login", middleware.Authenticate().LoginHandler)
 	}
 
 	productGroup := v1.Group("/products")
