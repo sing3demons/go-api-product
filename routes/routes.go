@@ -13,14 +13,27 @@ func Serve(r *gin.Engine) {
 	db := config.GetDB()
 	v1 := r.Group("/api/v1")
 
-	userGroup := v1.Group("/auth")
-	userController := controllers.Auth{DB: db}
+	authGroup := v1.Group("/auth")
+	authController := controllers.Auth{DB: db}
 	authenticate := middleware.Authenticate().MiddlewareFunc()
 	{
-		userGroup.POST("/register", userController.Register)
-		userGroup.POST("/login", middleware.Authenticate().LoginHandler)
-		userGroup.GET("/profile", authenticate, userController.GetProfile)
-		userGroup.PATCH("/profile", authenticate, userController.UpdateProfile)
+		authGroup.POST("/register", authController.Register)
+		authGroup.POST("/login", middleware.Authenticate().LoginHandler)
+		authGroup.GET("/profile", authenticate, authController.GetProfile)
+		authGroup.PATCH("/profile", authenticate, authController.UpdateProfile)
+	}
+
+	usersController := controllers.Users{DB: db}
+	usersGroup := v1.Group("users")
+	usersGroup.Use(authenticate)
+	{
+		usersGroup.GET("", usersController.FindAll)
+		usersGroup.POST("", usersController.Create)
+		usersGroup.GET("/:id", usersController.FindOne)
+		usersGroup.PATCH("/:id", usersController.Update)
+		usersGroup.DELETE("/:id", usersController.Delete)
+		usersGroup.PATCH("/:id/promote", usersController.Promote)
+		usersGroup.PATCH("/:id/demote", usersController.Demote)
 	}
 
 	productGroup := v1.Group("/products")
