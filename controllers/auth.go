@@ -15,7 +15,7 @@ type Auth struct {
 }
 
 type authForm struct {
-	Name     string `form:"name" binding:"required"`
+	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=6"`
 }
@@ -29,6 +29,7 @@ type updateProfileForm struct {
 type authResponse struct {
 	ID    uint   `json:"id"`
 	Email string `json:"email"`
+	Name  string `json:"name" `
 }
 
 //GetProfile - /auth/profile => JWT => sub (UserID) => User => User
@@ -66,18 +67,18 @@ func (a *Auth) UpdateProfile(ctx *gin.Context) {
 func (a *Auth) Register(ctx *gin.Context) {
 	var form authForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error(), "message": "ลงทะเบียนไม่สำเร็จ"})
 		return
 	}
 	var user models.User
 	copier.Copy(&user, &form)
 	user.Password = user.GenerateEncryptedPassword()
 	if err := a.DB.Create(&user).Error; err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error(), "message": "ลงทะเบียนไม่สำเร็จ"})
 		return
 	}
 
 	var serializedUser authResponse
 	copier.Copy(&serializedUser, &user)
-	ctx.JSON(http.StatusCreated, gin.H{"user": serializedUser})
+	ctx.JSON(http.StatusCreated, gin.H{"user": serializedUser, "message": "ลงทะเบียนสำเร็จ"})
 }
