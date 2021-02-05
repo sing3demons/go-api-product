@@ -40,7 +40,7 @@ type productRespons struct {
 	Desc       string `json:"desc"`
 	Price      int    `json:"price"`
 	Image      string `json:"image"`
-	CategoryID uint   `form:"categoryId" binding:"required"`
+	CategoryID uint   `json:"categoryId" binding:"required"`
 	Category   struct {
 		ID   uint   `json:"id"`
 		Name string `json:"name"`
@@ -56,13 +56,22 @@ type producsPaging struct {
 func (p *Product) FindAll(ctx *gin.Context) {
 	var products []models.Product
 
+	if category := ctx.Query("category"); category != "" {
+		c, _ := strconv.Atoi(category)
+		// p.DB.Where("category_id = ?", c).Find(&products)
+
+		pagination := pagination{ctx: ctx, query: p.DB.Where("category_id = ?", c).Preload("Category"), records: &products}
+		paging := pagination.paginate()
+
+		var serializedProduct []productRespons
+		copier.Copy(&serializedProduct, &products)
+		ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
+		return
+
+	}
+
 	pagination := pagination{ctx: ctx, query: p.DB.Preload("Category"), records: &products}
 	paging := pagination.paginate()
-
-	// if err := p.DB.Find(&products).Error; err != nil {
-	// 	ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-	// 	return
-	// }
 
 	var serializedProduct []productRespons
 	copier.Copy(&serializedProduct, &products)

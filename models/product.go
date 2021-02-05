@@ -1,5 +1,6 @@
 package models
 
+//Product - model
 type Product struct {
 	ID         uint   `gorm:"unique;not null"`
 	Name       string `gorm:"not null"`

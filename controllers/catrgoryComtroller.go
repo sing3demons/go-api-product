@@ -15,8 +15,7 @@ type Category struct {
 }
 
 type categoryResponse struct {
-	Name string `json:"name"`
-
+	Name    string `json:"name"`
 	Product []struct {
 		ID   uint   `json:"id"`
 		Name string `json:"name"`
@@ -24,6 +23,7 @@ type categoryResponse struct {
 }
 
 type allCategoryResponse struct {
+	ID   uint   `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -43,8 +43,17 @@ func (c *Category) FindAll(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+	if s := ctx.Query("name"); s != "" {
+		c.DB.Where("name = ?", s).Find(&categories)
 
-	var serializedCategory []categoryResponse
+		var serializedCategory []allCategoryResponse
+		copier.Copy(&serializedCategory, &categories)
+		ctx.JSON(http.StatusOK, gin.H{"category": serializedCategory})
+		return
+
+	}
+
+	var serializedCategory []allCategoryResponse
 	copier.Copy(&serializedCategory, &categories)
 	ctx.JSON(http.StatusOK, gin.H{"category": serializedCategory})
 }
@@ -107,6 +116,7 @@ func (c *Category) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"category": serializedProduct})
 
 }
+
 // Delete - remove category
 func (c *Category) Delete(ctx *gin.Context) {
 	category, err := c.findCategoryByID(ctx)

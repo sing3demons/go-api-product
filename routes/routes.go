@@ -15,9 +15,12 @@ func Serve(r *gin.Engine) {
 
 	userGroup := v1.Group("/auth")
 	userController := controllers.Auth{DB: db}
+	authenticate := middleware.Authenticate().MiddlewareFunc()
 	{
 		userGroup.POST("/register", userController.Register)
 		userGroup.POST("/login", middleware.Authenticate().LoginHandler)
+		userGroup.GET("/profile", authenticate, userController.GetProfile)
+		userGroup.PATCH("/profile", authenticate, userController.UpdateProfile)
 	}
 
 	productGroup := v1.Group("/products")
