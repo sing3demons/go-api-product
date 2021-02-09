@@ -43,17 +43,16 @@ func (c *Category) FindAll(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
-	if s := ctx.Query("name"); s != "" {
-		c.DB.Where("name = ?", s).Find(&categories)
 
-		var serializedCategory []allCategoryResponse
-		copier.Copy(&serializedCategory, &categories)
-		ctx.JSON(http.StatusOK, gin.H{"category": serializedCategory})
-		return
+	if s := ctx.Query("name"); s != "" {
+		if err := c.DB.Where("name = ?", s).Find(&categories).Error; err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
 
 	}
 
-	var serializedCategory []allCategoryResponse
+	serializedCategory := []allCategoryResponse{}
 	copier.Copy(&serializedCategory, &categories)
 	ctx.JSON(http.StatusOK, gin.H{"category": serializedCategory})
 }

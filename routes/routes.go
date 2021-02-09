@@ -12,10 +12,11 @@ import (
 func Serve(r *gin.Engine) {
 	db := config.GetDB()
 	v1 := r.Group("/api/v1")
+	
+	authenticate := middleware.Authenticate().MiddlewareFunc()
 
 	authGroup := v1.Group("/auth")
 	authController := controllers.Auth{DB: db}
-	authenticate := middleware.Authenticate().MiddlewareFunc()
 	{
 		authGroup.POST("/register", authController.Register)
 		authGroup.POST("/login", middleware.Authenticate().LoginHandler)

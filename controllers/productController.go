@@ -56,24 +56,17 @@ type producsPaging struct {
 func (p *Product) FindAll(ctx *gin.Context) {
 	var products []models.Product
 
+	query := p.DB.Preload("Category").Order("id desc")
+
 	if category := ctx.Query("category"); category != "" {
 		c, _ := strconv.Atoi(category)
-		// p.DB.Where("category_id = ?", c).Find(&products)
-
-		pagination := pagination{ctx: ctx, query: p.DB.Where("category_id = ?", c).Preload("Category"), records: &products}
-		paging := pagination.paginate()
-
-		var serializedProduct []productRespons
-		copier.Copy(&serializedProduct, &products)
-		ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
-		return
-
+		query = query.Where("category_id = ?", c)
 	}
 
-	pagination := pagination{ctx: ctx, query: p.DB.Preload("Category"), records: &products}
+	pagination := pagination{ctx: ctx, query: query, records: &products}
 	paging := pagination.paginate()
 
-	var serializedProduct []productRespons
+	serializedProduct := []productRespons{}
 	copier.Copy(&serializedProduct, &products)
 	ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
 }
