@@ -12,8 +12,9 @@ import (
 func Serve(r *gin.Engine) {
 	db := config.GetDB()
 	v1 := r.Group("/api/v1")
-	
+
 	authenticate := middleware.Authenticate().MiddlewareFunc()
+	authorize := middleware.Authorize()
 
 	authGroup := v1.Group("/auth")
 	authController := controllers.Auth{DB: db}
@@ -26,7 +27,7 @@ func Serve(r *gin.Engine) {
 
 	usersController := controllers.Users{DB: db}
 	usersGroup := v1.Group("users")
-	usersGroup.Use(authenticate)
+	usersGroup.Use(authenticate, authorize)
 	{
 		usersGroup.GET("", usersController.FindAll)
 		usersGroup.POST("", usersController.Create)
@@ -37,21 +38,23 @@ func Serve(r *gin.Engine) {
 		usersGroup.PATCH("/:id/demote", usersController.Demote)
 	}
 
-	productGroup := v1.Group("/products")
 	productController := controllers.Product{DB: db}
+	productGroup := v1.Group("/products")
+	productGroup.GET("", productController.FindAll)
+	productGroup.GET("/:id", productController.FindOne)
+	productGroup.Use(authenticate, authorize)
 	{
-		productGroup.GET("", productController.FindAll)
-		productGroup.GET("/:id", productController.FindOne)
 		productGroup.POST("", productController.Create)
 		productGroup.PATCH("/:id", productController.Update)
 		productGroup.DELETE("/:id", productController.Delete)
 	}
 
-	categoryGroup := v1.Group("/categories")
 	categoryController := controllers.Category{DB: db}
+	categoryGroup := v1.Group("/categories")
+	categoryGroup.GET("", categoryController.FindAll)
+	categoryGroup.GET("/:id", categoryController.FindOne)
+	categoryGroup.Use(authenticate, authorize)
 	{
-		categoryGroup.GET("", categoryController.FindAll)
-		categoryGroup.GET("/:id", categoryController.FindOne)
 		categoryGroup.POST("", categoryController.Create)
 		categoryGroup.PATCH("/:id", categoryController.Update)
 		categoryGroup.DELETE("/:id", categoryController.Delete)

@@ -44,12 +44,6 @@ type usersPaging struct {
 
 //FindAll - api/v1/users @GET
 func (u *Users) FindAll(ctx *gin.Context) {
-	sub, _ := ctx.Get("sub")
-	if sub.(*models.User).Role != "Admin" {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-		return
-	}
-
 	var users []models.User
 	query := u.DB.Order("id desc").Find(&users)
 
@@ -65,12 +59,6 @@ func (u *Users) FindAll(ctx *gin.Context) {
 
 //Create - api/v1/users @POST
 func (u *Users) Create(ctx *gin.Context) {
-	sub, _ := ctx.Get("sub")
-	if sub.(*models.User).Role != "Admin" {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-		return
-	}
-
 	var form createUserForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
@@ -93,12 +81,6 @@ func (u *Users) Create(ctx *gin.Context) {
 
 //FindOne - api/v1/users/:id @GET
 func (u *Users) FindOne(ctx *gin.Context) {
-	sub, _ := ctx.Get("sub")
-	if sub.(*models.User).Role != "Admin" {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-		return
-	}
-
 	user, err := u.findUserByID(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -112,12 +94,6 @@ func (u *Users) FindOne(ctx *gin.Context) {
 
 //Update - api/v1/users/:id @PATCH
 func (u *Users) Update(ctx *gin.Context) {
-	sub, _ := ctx.Get("sub")
-	if sub.(*models.User).Role != "Admin" {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-		return
-	}
-
 	var form updateUserForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
@@ -147,12 +123,6 @@ func (u *Users) Update(ctx *gin.Context) {
 
 //Delete - api/v1/users/:id @DELETE
 func (u *Users) Delete(ctx *gin.Context) {
-	sub, _ := ctx.Get("sub")
-	if sub.(*models.User).Role != "Admin" {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-		return
-	}
-
 	user, err := u.findUserByID(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -166,12 +136,6 @@ func (u *Users) Delete(ctx *gin.Context) {
 
 //Promote - api/v1/users/:id/promote @PATCH
 func (u *Users) Promote(ctx *gin.Context) {
-	sub, _ := ctx.Get("sub")
-	if sub.(*models.User).Role != "Admin" {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-		return
-	}
-
 	user, err := u.findUserByID(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
@@ -188,12 +152,6 @@ func (u *Users) Promote(ctx *gin.Context) {
 
 //Demote - api/v1/users/:id/demote @PATCH
 func (u *Users) Demote(ctx *gin.Context) {
-	sub, _ := ctx.Get("sub")
-	if sub.(*models.User).Role != "Admin" {
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
-		return
-	}
-
 	user, err := u.findUserByID(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
