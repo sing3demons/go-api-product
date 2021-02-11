@@ -16,6 +16,7 @@ func Migrate() {
 			m1610674464CreateTableProductsTable(),
 			m1610950017CreactCategoryTable(),
 			m1612129431CreactUserable(),
+			m11613010616UpdateCollumProducts(),
 		},
 	)
 

@@ -1,8 +1,10 @@
 package models
 
+import "github.com/jinzhu/gorm"
+
 //Product - model
 type Product struct {
-	ID         uint   `gorm:"unique;not null"`
+	gorm.Model
 	Name       string `gorm:"not null"`
 	Desc       string `gorm:"not null"`
 	Price      int    `gorm:"not null"`
