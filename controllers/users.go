@@ -13,6 +13,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+//Users - receiver adater
 type Users struct {
 	DB *gorm.DB
 }

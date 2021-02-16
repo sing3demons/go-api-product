@@ -10,6 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+//Auth - receiver adater
 type Auth struct {
 	DB *gorm.DB
 }

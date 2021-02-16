@@ -31,7 +31,7 @@ type updateProductForm struct {
 	Desc       string                `form:"desc"`
 	Price      int                   `form:"price"`
 	Image      *multipart.FileHeader `form:"image"`
-	CategoryID uint                  `form:"categoryId" binding:"required"`
+	CategoryID uint                  `form:"categoryId"`
 }
 
 type productRespons struct {

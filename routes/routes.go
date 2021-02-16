@@ -42,9 +42,10 @@ func Serve(r *gin.Engine) {
 	productGroup := v1.Group("/products")
 	productGroup.GET("", productController.FindAll)
 	productGroup.GET("/:id", productController.FindOne)
-	productGroup.POST("", productController.Create)
+
 	productGroup.Use(authenticate, authorize)
 	{
+		productGroup.POST("", productController.Create)
 		productGroup.PATCH("/:id", productController.Update)
 		productGroup.DELETE("/:id", productController.Delete)
 	}
