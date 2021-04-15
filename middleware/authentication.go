@@ -5,6 +5,7 @@ import (
 	"app/models"
 	"log"
 	"os"
+	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -17,15 +18,16 @@ type login struct {
 }
 
 var identityKey = "sub"
+var exp = time.Hour * 72
 
 // Authenticate - public
 func Authenticate() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		// secret key
-		Key: []byte(os.Getenv("SECRET_KEY")),
-
-		IdentityKey: identityKey,
-
+		Key:           []byte(os.Getenv("SECRET_KEY")),
+		Timeout:       exp,
+		MaxRefresh:    exp,
+		IdentityKey:   identityKey,
 		TokenLookup:   "header: Authorization",
 		TokenHeadName: "Bearer",
 
