@@ -1,0 +1,20 @@
+version: '3.1'
+services:
+    db:
+        image: postgres
+        environment:
+            POSTGRES_DB: ${DB_NAME}
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - 6000:${DB_PORT}
+    web:
+        build: .
+        ports:
+          - "${PORT}:${PORT}"
+        volumes:
+          - ".:/app"
+        depends_on:
+          - db
+        links:
+          - "db:database"

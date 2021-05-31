@@ -1,13 +1,13 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 var db *gorm.DB
@@ -15,8 +15,15 @@ var db *gorm.DB
 //InitDB - connenct database
 func InitDB() {
 	var err error
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+	db_port := os.Getenv("DB_PORT")
 	// db, err := gorm.Open("sqlite3", "./tmp/gorm.db")
-	db, err = gorm.Open("postgres", os.Getenv("DATABASE_URL"))
+	DATABASE_URL := fmt.Sprintf("host=db user=%s password=%s dbname=%s port=%s  sslmode=disable TimeZone=Asia/Bangkok", user, password, dbname, db_port)
+
+	fmt.Print("url: ", DATABASE_URL)
+	db, err = gorm.Open("postgres", DATABASE_URL)
 	if err != nil {
 		log.Fatal(err)
 	}
