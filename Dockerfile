@@ -14,4 +14,4 @@ RUN go get github.com/githubnemo/CompileDaemon
 
 EXPOSE ${PORT}
 
-ENTRYPOINT CompileDaemon --build="go build main.go" --command=./main
+ENTRYPOINT CompileDaemon --build="go build -o main_app" --command=./main_app

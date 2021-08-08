@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"app/cache"
 	"app/config"
 	"app/controllers"
 	"app/middleware"
@@ -11,6 +12,7 @@ import (
 //Serve - middleware
 func Serve(r *gin.Engine) {
 	db := config.GetDB()
+	cache := cache.NewRedisCache("redis:6379", 1, 10)
 	v1 := r.Group("/api/v1")
 
 	authenticate := middleware.Authenticate().MiddlewareFunc()
@@ -38,7 +40,7 @@ func Serve(r *gin.Engine) {
 		usersGroup.PATCH("/:id/demote", usersController.Demote)
 	}
 
-	productController := controllers.Product{DB: db}
+	productController := controllers.Product{DB: db, Cache: cache}
 	productGroup := v1.Group("/products")
 	productGroup.GET("", productController.FindAll)
 	productGroup.GET("/:id", productController.FindOne)

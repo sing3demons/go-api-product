@@ -8,6 +8,7 @@ require (
 	github.com/casbin/casbin v1.9.1
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.1
+	github.com/go-redis/redis/v7 v7.4.1
 	github.com/jinzhu/copier v0.2.9
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.3.0

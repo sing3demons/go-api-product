@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"app/cache"
 	"app/models"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -15,7 +17,8 @@ import (
 
 //Product - struct
 type Product struct {
-	DB *gorm.DB
+	DB    *gorm.DB
+	Cache cache.ProductCache
 }
 
 type createProductForm struct {
@@ -54,7 +57,22 @@ type producsPaging struct {
 
 // FindAll - query-database-all
 func (p *Product) FindAll(ctx *gin.Context) {
-	var products []models.Product
+
+	var products []models.Product = p.Cache.Get("products")
+	if products != nil {
+		fmt.Println("Get...Redis")
+		products := p.Cache.Get("products")
+		pagingCache := p.Cache.GetPage("paging")
+
+		// var paging *pagingResult
+		paging := (*pagingResult)(pagingCache)
+
+		serializedProduct := []productRespons{}
+		copier.Copy(&serializedProduct, &products)
+
+		ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
+		return
+	}
 
 	query := p.DB.Preload("Category").Order("id desc")
 
@@ -68,6 +86,11 @@ func (p *Product) FindAll(ctx *gin.Context) {
 
 	serializedProduct := []productRespons{}
 	copier.Copy(&serializedProduct, &products)
+
+	p.Cache.Set("products", serializedProduct)
+	p.Cache.Set("paging", paging)
+	fmt.Println("Set...Redis")
+
 	ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
 }
 
