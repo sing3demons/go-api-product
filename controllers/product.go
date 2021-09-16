@@ -3,7 +3,9 @@ package controllers
 import (
 	"app/cache"
 	"app/models"
+	"encoding/json"
 	"fmt"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -57,22 +59,34 @@ type producsPaging struct {
 
 // FindAll - query-database-all
 func (p *Product) FindAll(ctx *gin.Context) {
+	cacheProduct := "items:all"
+	cachePage := "page"
 
-	var products []models.Product = p.Cache.Get("products")
-	if products != nil {
-		fmt.Println("Get...Redis")
-		products := p.Cache.Get("products")
-		pagingCache := p.Cache.GetPage("paging")
+	cacheItems, err := p.Cache.Get(cacheProduct)
+	cachePage, _ = p.Cache.Get(cachePage)
+	if err != nil {
+		log.Println(err)
+	}
 
-		// var paging *pagingResult
-		paging := (*pagingResult)(pagingCache)
+	if len(cacheItems) > 0 && len("page") > 0 {
+		fmt.Printf("Get...Redis :%v\n", len(cacheItems))
 
-		serializedProduct := []productRespons{}
-		copier.Copy(&serializedProduct, &products)
+		var items []productRespons
+		var page *pagingResult
+		if err := json.Unmarshal([]byte(cacheItems), &items); err != nil {
+			fmt.Println(err.Error())
+			//json: Unmarshal(non-pointer main.Request)
+		}
+		if err = json.Unmarshal([]byte(cachePage), &page); err != nil {
+			fmt.Println(err.Error())
+			//json: Unmarshal(non-pointer main.Request)
+		}
 
-		ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
+		ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: items, Paging: page}})
 		return
 	}
+
+	var products []models.Product
 
 	query := p.DB.Preload("Category").Order("id desc")
 
@@ -87,8 +101,8 @@ func (p *Product) FindAll(ctx *gin.Context) {
 	serializedProduct := []productRespons{}
 	copier.Copy(&serializedProduct, &products)
 
-	p.Cache.Set("products", serializedProduct)
-	p.Cache.Set("paging", paging)
+	p.Cache.Set(cacheProduct, serializedProduct)
+	p.Cache.Set("page", paging)
 	fmt.Println("Set...Redis")
 
 	ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})

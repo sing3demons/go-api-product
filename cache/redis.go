@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"app/models"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v7"
@@ -25,7 +25,7 @@ type pagingResult struct {
 
 type ProductCache interface {
 	Set(key string, value interface{})
-	Get(key string) []models.Product
+	Get(key string) (string, error)
 	GetPage(key string) *pagingResult
 }
 
@@ -71,22 +71,18 @@ func (cache *redisCache) Set(key string, value interface{}) {
 		panic(err)
 	}
 
+	fmt.Printf("%v\n", key)
+
 	client.Set(key, json, cache.expires*time.Second)
 }
 
-func (cache *redisCache) Get(key string) []models.Product {
+func (cache *redisCache) Get(key string) (string, error) {
 	client := cache.getClient()
 
-	val, err := client.Get(key).Result()
+	resp, err := client.Get(key).Result()
 	if err != nil {
-		return nil
+		return "", err
 	}
 
-	product := []models.Product{}
-	err = json.Unmarshal([]byte(val), &product)
-	if err != nil {
-		panic(err)
-	}
-
-	return product
+	return resp, nil
 }
