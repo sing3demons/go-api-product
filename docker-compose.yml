@@ -1,32 +1,32 @@
-version: '3.1'
+version: "3.1"
 services:
-
-    redis:
-      container_name: redis
-      image: redis:6
-      ports: 
-          - 6379:6379
-    db:
-      image: postgres
-      environment:
-        POSTGRES_DB: ${DB_NAME}
-        POSTGRES_USER: ${DB_USER}
-        POSTGRES_PASSWORD: ${DB_PASSWORD}
-      restart: always
-      ports:
-        - ${DB_PORT}:${DB_PORT}
-      volumes: 
-        - ./db_data:/var/lib/postgresql/data
-    web:
-      build: .
-      ports:
-        - "${PORT}:${PORT}"
-      volumes:
-        - ".:/app"
-      restart: always
-      depends_on:
-        - db
-      links:
-        - "db:database"
-
-   
+  redis:
+    container_name: redis
+    image: redis:alpine
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    restart: always
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+  web:
+    build: .
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - ".:/app"
+    restart: always
+    depends_on:
+      - db
+      - redis
+    links:
+      - "db:database"

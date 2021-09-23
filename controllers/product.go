@@ -59,17 +59,16 @@ type producsPaging struct {
 
 // FindAll - query-database-all
 func (p *Product) FindAll(ctx *gin.Context) {
-	cacheProduct := "items:all"
-	cachePage := "page"
+	cacheProduct := "items::all"
+	cachePage := "items::page"
 
 	cacheItems, err := p.Cache.Get(cacheProduct)
-	cachePage, _ = p.Cache.Get(cachePage)
+	cacheItemPage, _ := p.Cache.Get(cachePage)
 	if err != nil {
 		log.Println(err)
 	}
 
-	if len(cacheItems) > 0 && len("page") > 0 {
-		fmt.Printf("Get...Redis :%v\n", len(cacheItems))
+	if len(cacheItems) > 0 && len(cacheItemPage) > 0 {
 
 		var items []productRespons
 		var page *pagingResult
@@ -77,7 +76,7 @@ func (p *Product) FindAll(ctx *gin.Context) {
 			fmt.Println(err.Error())
 			//json: Unmarshal(non-pointer main.Request)
 		}
-		if err = json.Unmarshal([]byte(cachePage), &page); err != nil {
+		if err = json.Unmarshal([]byte(cacheItemPage), &page); err != nil {
 			fmt.Println(err.Error())
 			//json: Unmarshal(non-pointer main.Request)
 		}
@@ -102,10 +101,15 @@ func (p *Product) FindAll(ctx *gin.Context) {
 	copier.Copy(&serializedProduct, &products)
 
 	p.Cache.Set(cacheProduct, serializedProduct)
-	p.Cache.Set("page", paging)
-	fmt.Println("Set...Redis")
+	p.Cache.Set(cachePage, paging)
 
-	ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
+	resp := map[string]interface{}{
+		"items": serializedProduct,
+		"page":  paging,
+	}
+
+	// ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
+	ctx.JSON(http.StatusOK, gin.H{"products": resp})
 }
 
 // FindOne - first
