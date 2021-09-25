@@ -7,6 +7,12 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     ports:
       - 6379:6379
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - '8001:8001'
+    volumes:
+      - ./_data/redisinsight:/db 
   db:
     image: postgres
     environment:
@@ -17,16 +23,16 @@ services:
     ports:
       - ${DB_PORT}:${DB_PORT}
     volumes:
-      - ./db_data:/var/lib/postgresql/data
-  web:
-    build: .
-    ports:
-      - "${PORT}:${PORT}"
-    volumes:
-      - ".:/app"
-    restart: always
-    depends_on:
-      - db
-      - redis
-    links:
-      - "db:database"
+      - ./_db_data:/var/lib/postgresql/data
+  # web:
+  #   build: .
+  #   ports:
+  #     - "${PORT}:${PORT}"
+  #   volumes:
+  #     - ".:/app"
+  #   restart: always
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   links:
+  #     - "db:database"

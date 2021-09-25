@@ -24,6 +24,7 @@ func main() {
 	config.InitDB()
 	defer config.CloseDB()
 	migrations.Migrate()
+	// seeds.Load()
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true

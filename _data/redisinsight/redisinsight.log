@@ -1,0 +1,41 @@
+ERROR 2021-09-23 10:02:20,802 redisinsight Connection error while connecting to redis instance: Connection not ready
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 1192, in get_connection
+    raise ConnectionError('Connection has data')
+redis.exceptions.ConnectionError: Connection has data
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "./redisinsight/utils/__init__.py", line 199, in _wrapped_view
+  File "./redisinsight/core/views/decorators.py", line 21, in wrapped_view
+  File "./redisinsight/redisgraph/decorators.py", line 34, in _wrapped_view
+  File "./redisinsight/redisgraph/views/__init__.py", line 27, in module_info
+  File "./redisinsight/redisgraph/services/__init__.py", line 356, in check_redisgraph_module_loaded_in_instance
+  File "./redisinsight/redisgraph/services/__init__.py", line 325, in check_redisgraph_module_loaded
+  File "/usr/local/lib/python3.6/site-packages/redis/client.py", line 875, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 1197, in get_connection
+    raise ConnectionError('Connection not ready')
+redis.exceptions.ConnectionError: Connection not ready
+ERROR 2021-09-23 10:02:20,808 django.request Unknown Status Code: /api/instance/ee621770-d3e8-40a9-9df7-55353b9d0b1b/redisgraph/check-module-loaded/
+ERROR 2021-09-23 10:02:20,872 redisinsight Connection error while connecting to redis instance: max number of clients reached
+Traceback (most recent call last):
+  File "./redisinsight/utils/__init__.py", line 199, in _wrapped_view
+  File "./redisinsight/core/views/decorators.py", line 21, in wrapped_view
+  File "./redisinsight/redisgraph/decorators.py", line 34, in _wrapped_view
+  File "./redisinsight/redisgraph/views/__init__.py", line 190, in find_keys
+  File "./redisinsight/redisgraph/services/__init__.py", line 273, in find_keys_graph
+  File "/usr/local/lib/python3.6/site-packages/redis/client.py", line 2077, in scan
+    return self.execute_command('SCAN', *pieces)
+  File "/usr/local/lib/python3.6/site-packages/redis/client.py", line 878, in execute_command
+    return self.parse_response(conn, command_name, **options)
+  File "/usr/local/lib/python3.6/site-packages/redis/client.py", line 892, in parse_response
+    response = connection.read_response()
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 734, in read_response
+    response = self._parser.read_response()
+  File "/usr/local/lib/python3.6/site-packages/redis/connection.py", line 333, in read_response
+    raise error
+redis.exceptions.ConnectionError: max number of clients reached
+ERROR 2021-09-23 10:02:20,878 django.request Unknown Status Code: /api/instance/ee621770-d3e8-40a9-9df7-55353b9d0b1b/redisgraph/find-keys/
+WARNING 2021-09-23 10:02:22,460 django.request Bad Request: /api/instance/ee621770-d3e8-40a9-9df7-55353b9d0b1b/redistimeseries/module-info/

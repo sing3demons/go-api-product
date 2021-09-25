@@ -12,7 +12,7 @@ import (
 //Serve - middleware
 func Serve(r *gin.Engine) {
 	db := config.GetDB()
-	cache := cache.NewRedisCache("redis:6379", 1, 10)
+	cache := cache.NewRedisCache("localhost:6379", 1, 10)
 	v1 := r.Group("/api/v1")
 
 	authenticate := middleware.Authenticate().MiddlewareFunc()

@@ -1,4 +1,4 @@
-package seed
+package seeds
 
 import (
 	"app/config"
@@ -15,7 +15,7 @@ func Load() {
 	db := config.GetDB()
 
 	// Clean Database
-	db.DropTableIfExists("users", "articles", "categories", "migrations")
+	db.DropTableIfExists("users", "products", "categories", "migrations")
 	migrations.Migrate()
 
 	// Add Admin
@@ -56,7 +56,7 @@ func Load() {
 	// Add categories
 	log.Info("Creating categories...")
 
-	numOfCategories := 20
+	numOfCategories := 10
 	categories := make([]models.Category, 0, numOfCategories)
 
 	for i := 1; i <= numOfCategories; i++ {
@@ -68,23 +68,22 @@ func Load() {
 		categories = append(categories, category)
 	}
 
-	// Add articles
-	// log.Info("Creating articles...")
+	// Add products
+	log.Info("Creating articles...")
 
-	// numOfArticles := 50
-	// articles := make([]models.Product, 0, numOfArticles)
+	numOfProducts := 100000
+	products := make([]models.Product, 0, numOfProducts)
 
-	// for i := 1; i <= numOfArticles; i++ {
-	// 	article := models.Product{
-	// 		Title:      faker.Sentence(),
-	// 		Excerpt:    faker.Sentence(),
-	// 		Body:       faker.Paragraph(),
-	// 		Image:      "https://source.unsplash.com/random/300x200?" + strconv.Itoa(i),
-	// 		CategoryID: uint(rand.Intn(numOfCategories) + 1),
-	// 		UserID:     uint(rand.Intn(numOfUsers) + 1),
-	// 	}
+	for i := 1; i <= numOfProducts; i++ {
+		product := models.Product{
+			Name:       faker.Name(),
+			Desc:       faker.Word(),
+			Price:      rand.Intn(9999),
+			Image:      "https://source.unsplash.com/random/300x200?" + strconv.Itoa(i),
+			CategoryID: uint(rand.Intn(numOfCategories) + 1),
+		}
 
-	// 	db.Create(&article)
-	// 	articles = append(articles, article)
-	// }
+		db.Create(&product)
+		products = append(products, product)
+	}
 }

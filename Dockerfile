@@ -1,17 +1,18 @@
-FROM golang:1.16
+FROM golang:alpine as builder
 
-RUN mkdir /app
-
+RUN apk --no-cache add gcc g++ make
+RUN apk add git
 WORKDIR /app
+COPY . .
+RUN go mod tidy
 
-ADD go.mod .
-ADD go.sum .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
-RUN go mod download
-ADD . .
+FROM alpine:latest  
+RUN apk --no-cache add ca-certificates
+WORKDIR /
 
-RUN go get github.com/githubnemo/CompileDaemon
+COPY --from=builder /app .
+EXPOSE 8080
 
-EXPOSE ${PORT}
-
-ENTRYPOINT CompileDaemon --build="go build -o main_app" --command=./main_app
+CMD ["./main"] 
