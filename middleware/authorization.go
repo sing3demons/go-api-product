@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"app/models"
+	"github.com/sing3demons/app/models"
 	"net/http"
 
 	"github.com/casbin/casbin"

@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"app/models"
+	"github.com/sing3demons/app/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

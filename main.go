@@ -1,11 +1,12 @@
 package main
 
 import (
-	"app/config"
-	"app/migrations"
-	"app/routes"
 	"log"
 	"os"
+
+	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/migrations"
+	"github.com/sing3demons/app/routes"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

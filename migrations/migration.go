@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"app/config"
+	"github.com/sing3demons/app/config"
 	"log"
 
 	"gopkg.in/gormigrate.v1"

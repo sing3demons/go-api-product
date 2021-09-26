@@ -1,9 +1,9 @@
 package seeds
 
 import (
-	"app/config"
-	"app/migrations"
-	"app/models"
+	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/migrations"
+	"github.com/sing3demons/app/models"
 	"math/rand"
 	"strconv"
 

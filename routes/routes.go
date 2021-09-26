@@ -1,18 +1,22 @@
 package routes
 
 import (
-	"app/cache"
-	"app/config"
-	"app/controllers"
-	"app/middleware"
+	"github.com/sing3demons/app/cache"
+	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/controllers"
+	"github.com/sing3demons/app/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
+func NewCacherConfig() *cache.CacherConfig {
+	return &cache.CacherConfig{}
+}
+
 //Serve - middleware
 func Serve(r *gin.Engine) {
 	db := config.GetDB()
-	cache := cache.NewRedisCache("localhost:6379", 1, 10)
+	cacher := cache.NewCacher(NewCacherConfig())
 	v1 := r.Group("/api/v1")
 
 	authenticate := middleware.Authenticate().MiddlewareFunc()
@@ -40,7 +44,7 @@ func Serve(r *gin.Engine) {
 		usersGroup.PATCH("/:id/demote", usersController.Demote)
 	}
 
-	productController := controllers.Product{DB: db, Cache: cache}
+	productController := controllers.Product{DB: db, Cacher: cacher}
 	productGroup := v1.Group("/products")
 	productGroup.GET("", productController.FindAll)
 	productGroup.GET("/:id", productController.FindOne)

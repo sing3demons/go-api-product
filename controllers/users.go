@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"app/config"
-	"app/models"
+	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/models"
 	"net/http"
 	"os"
 	"strconv"

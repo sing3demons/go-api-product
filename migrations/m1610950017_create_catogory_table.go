@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"app/models"
+	"github.com/sing3demons/app/models"
 
 	"github.com/jinzhu/gorm"
 	"gopkg.in/gormigrate.v1"

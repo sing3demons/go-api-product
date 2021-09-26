@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"app/config"
-	"app/models"
+	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/models"
 	"log"
 	"os"
 	"time"
