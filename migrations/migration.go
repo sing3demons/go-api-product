@@ -1,8 +1,9 @@
 package migrations
 
 import (
-	"github.com/sing3demons/app/config"
 	"log"
+
+	"github.com/sing3demons/app/config"
 
 	"gopkg.in/gormigrate.v1"
 )

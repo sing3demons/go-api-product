@@ -7,6 +7,7 @@ import (
 	"github.com/sing3demons/app/config"
 	"github.com/sing3demons/app/migrations"
 	"github.com/sing3demons/app/routes"
+	"github.com/sing3demons/app/seeds"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ func main() {
 	config.InitDB()
 	defer config.CloseDB()
 	migrations.Migrate()
-	// seeds.Load()
+	seeds.Load()
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true

@@ -20,7 +20,7 @@ func InitDB() {
 	dbname := os.Getenv("DB_NAME")
 	db_port := os.Getenv("DB_PORT")
 	// db, err := gorm.Open("sqlite3", "./tmp/gorm.db")
-	DATABASE_URL := fmt.Sprintf("host=localhost user=%s password=%s dbname=%s port=%s  sslmode=disable TimeZone=Asia/Bangkok", user, password, dbname, db_port)
+	DATABASE_URL := fmt.Sprintf("host=db user=%s password=%s dbname=%s port=%s  sslmode=disable TimeZone=Asia/Bangkok", user, password, dbname, db_port)
 
 	fmt.Print("url: ", DATABASE_URL)
 	db, err = gorm.Open("postgres", DATABASE_URL)

@@ -21,7 +21,7 @@ func NewCacherConfig() *CacherConfig {
 }
 
 func (cfg *CacherConfig) Endpoint() string {
-	return "127.0.0.1:6379"
+	return "redis:6379"
 }
 
 func (cfg *CacherConfig) Password() string {
