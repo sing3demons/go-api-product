@@ -28,3 +28,4 @@ runtest-products
 README.md
 Procfile
 Makefile
+.env.example
