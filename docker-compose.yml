@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.9"
 services:
   redis:
     container_name: redis
@@ -33,7 +33,7 @@ services:
   webapi:
     # build: .
     container_name: webapi
-    image: sing3demons/go-api-product:0.1.3
+    image: sing3demons/go-api-product:0.1.4
     ports:
       - ${PORT}:${PORT}
     volumes:

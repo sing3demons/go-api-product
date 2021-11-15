@@ -19,10 +19,11 @@ func InitDB() {
 	password := os.Getenv("DB_PASSWORD")
 	dbname := os.Getenv("DB_NAME")
 	db_port := os.Getenv("DB_PORT")
+	dbHost := os.Getenv("DB_HOST")
 	// db, err := gorm.Open("sqlite3", "./tmp/gorm.db")
-	DATABASE_URL := fmt.Sprintf("host=db user=%s password=%s dbname=%s port=%s  sslmode=disable TimeZone=Asia/Bangkok", user, password, dbname, db_port)
+	DATABASE_URL := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s  sslmode=disable TimeZone=Asia/Bangkok", dbHost, user, password, dbname, db_port)
 
-	fmt.Print("url: ", DATABASE_URL)
+	// fmt.Print("url: ", DATABASE_URL)
 	db, err = gorm.Open("postgres", DATABASE_URL)
 	if err != nil {
 		log.Fatal(err)
