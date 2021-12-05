@@ -1,8 +1,14 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/sing3demons/app/config"
 	"github.com/sing3demons/app/migrations"
@@ -14,7 +20,17 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var (
+	buildcommit = "dev"
+	buildtime   = time.Now().String()
+)
+
 func main() {
+	_, err := os.Create("/tmp/live")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove("/tmp/live")
 
 	if os.Getenv("APP_ENV") != "production" {
 		err := godotenv.Load()
@@ -31,10 +47,30 @@ func main() {
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AddAllowHeaders("Authorization")
+	// config := cors.DefaultConfig()
+	// config.AllowOrigins = []string{
+	// 	"http://localhost:8080",
+	// }
+	// config.AllowHeaders = []string{
+	// 	"Origin",
+	// 	"Authorization",
+	// 	"TransactionID",
+	// }
 
 	r := gin.Default()
 	r.Use(cors.New(corsConfig)) //cors
 	r.Static("/uploads", "./uploads")
+
+	r.GET("/healthz", func(c *gin.Context) {
+		c.Status(200)
+	})
+
+	r.GET("/x", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"buildcommit": buildcommit,
+			"buildtime":   buildtime,
+		})
+	})
 
 	//สร้าง folder
 	uploadDirs := [...]string{"products", "users"}
@@ -44,5 +80,31 @@ func main() {
 
 	routes.Serve(r)
 
-	r.Run(":" + os.Getenv("PORT"))
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	s := &http.Server{
+		Addr:           ":" + os.Getenv("PORT"),
+		Handler:        r,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	go func() {
+		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	<-ctx.Done()
+	stop()
+	fmt.Println("shutting down gracefully, press Ctrl+C again to force")
+
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := s.Shutdown(timeoutCtx); err != nil {
+		fmt.Println(err)
+	}
 }
