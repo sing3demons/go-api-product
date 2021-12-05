@@ -32,13 +32,10 @@ services:
       - ./_data/pg_data:/var/lib/postgresql/data
   webapi:
     container_name: webapi
-    image: sing3demons/go-api-product:0.1.6
+    image: go-api-product:0.1.8
     build: .
     ports:
       - 8080:8080
-    volumes:
-      - ".:/app"
-      - "./uploads:/uploads"
     restart: always
     environment:
       - PORT=${PORT}
@@ -49,9 +46,12 @@ services:
       - DB_HOST=${DB_HOST}
       - SECRET_KEY=${SECRET_KEY}
       - APP_ENV=${APP_ENV}
+    volumes:
+      - "./uploads:/uploads"
+      - "./config/acl_model.conf:/config/acl_model.conf"
+      - "./config/policy.csv:/config/policy.csv"
     depends_on:
       - db
       - redis
     links:
       - "db:db"
-  
