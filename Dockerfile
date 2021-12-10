@@ -6,10 +6,10 @@ WORKDIR /app
 COPY . .
 RUN go mod tidy
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo \
-    -ldflags "-X main.buildcommit=`git rev-parse --short HEAD` \
-    -X main.buildtime=`date "+%Y-%m-%dT%H:%M:%S%Z:00"`" \
-    -o /go/bin/app
+RUN go build -a -installsuffix cgo \
+-ldflags "-X main.buildcommit=`git rev-parse --short HEAD` \
+-X main.buildtime=`date "+%Y-%m-%dT%H:%M:%S%Z:00"`" \
+-o /go/bin/app
 
 FROM alpine:latest  
 RUN apk --no-cache add ca-certificates
