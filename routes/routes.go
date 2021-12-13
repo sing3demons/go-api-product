@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/sing3demons/app/cache"
-	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/database"
 	"github.com/sing3demons/app/controllers"
 	"github.com/sing3demons/app/middleware"
 
@@ -15,7 +15,7 @@ func NewCacherConfig() *cache.CacherConfig {
 
 //Serve - middleware
 func Serve(r *gin.Engine) {
-	db := config.GetDB()
+	db := database.GetDB()
 	cacher := cache.NewCacher(NewCacherConfig())
 	v1 := r.Group("/api/v1")
 

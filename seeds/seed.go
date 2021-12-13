@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"strconv"
 
-	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/database"
 	"github.com/sing3demons/app/migrations"
 	"github.com/sing3demons/app/models"
 
@@ -13,7 +13,7 @@ import (
 )
 
 func Load() {
-	db := config.GetDB()
+	db := database.GetDB()
 
 	var productsDB []models.Product
 	err := db.Find(&productsDB).Error

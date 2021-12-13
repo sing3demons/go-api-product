@@ -199,7 +199,7 @@ func (p *Product) Find_All(ctx *gin.Context) {
 
 	serializedProduct := []productRespons{}
 	copier.Copy(&serializedProduct, &products)
-	timeToExpire := 60 * 5 * time.Second // 5m
+	timeToExpire := 10 * time.Second // 5m
 	p.Cacher.Set(cacheProduct, serializedProduct, timeToExpire)
 	p.Cacher.Set(cachePage, paging, timeToExpire)
 

@@ -3,13 +3,13 @@ package migrations
 import (
 	"log"
 
-	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/database"
 
 	"gopkg.in/gormigrate.v1"
 )
 
 func Migrate() {
-	db := config.GetDB()
+	db := database.GetDB()
 	m := gormigrate.New(
 		db,
 		gormigrate.DefaultOptions,

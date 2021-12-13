@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/database"
 	"github.com/sing3demons/app/migrations"
 	"github.com/sing3demons/app/routes"
 	"github.com/sing3demons/app/seeds"
@@ -39,8 +39,8 @@ func main() {
 		}
 	}
 
-	config.InitDB()
-	defer config.CloseDB()
+	database.InitDB()
+	defer database.CloseDB()
 	migrations.Migrate()
 	seeds.Load()
 

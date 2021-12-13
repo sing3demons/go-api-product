@@ -16,6 +16,7 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /
 
 COPY --from=builder /go/bin/app /app
+COPY ./config ./config
 EXPOSE 8080
 
 

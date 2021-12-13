@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/sing3demons/app/config"
+	"github.com/sing3demons/app/database"
 	"github.com/sing3demons/app/models"
 	"log"
 	"os"
@@ -36,7 +36,7 @@ func Authenticate() *jwt.GinJWTMiddleware {
 			claims := jwt.ExtractClaims(c)
 			id := claims[identityKey]
 
-			db := config.GetDB()
+			db := database.GetDB()
 			if db.First(&user, uint(id.(float64))).RecordNotFound() {
 				return nil
 			}
@@ -53,7 +53,7 @@ func Authenticate() *jwt.GinJWTMiddleware {
 				return nil, jwt.ErrMissingLoginValues
 			}
 
-			db := config.GetDB()
+			db := database.GetDB()
 			if db.Where("email = ?", form.Email).First(&user).RecordNotFound() {
 				return nil, jwt.ErrFailedAuthentication
 			}
