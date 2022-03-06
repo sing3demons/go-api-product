@@ -1,12 +1,13 @@
 package controllers
 
 import (
-	"github.com/sing3demons/app/database"
-	"github.com/sing3demons/app/models"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/sing3demons/app/database"
+	"github.com/sing3demons/app/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
