@@ -1,11 +1,16 @@
 package controllers
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/cloudinary/cloudinary-go"
+	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"github.com/sing3demons/app/database"
 	"github.com/sing3demons/app/models"
 
@@ -168,7 +173,55 @@ func (u *Users) Demote(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"user": serializedUser})
 }
 
-func setUserImage(ctx *gin.Context, user *models.User) error {
+func setUserImage(c *gin.Context, user *models.User) (imgUrl string, err error) {
+	file, _ := c.FormFile("avatar")
+	if file == nil {
+		return "", nil
+	}
+
+	if user.Avatar != "" {
+		user.Avatar = strings.Replace(user.Avatar, os.Getenv("HOST"), "", 1)
+		pwd, _ := os.Getwd()
+		os.Remove(pwd + user.Avatar)
+	}
+
+	// filename := strconv.Itoa(int(user.ID)) + "_" + file.Filename
+	path := "uploads/users/" + strconv.Itoa(int(user.ID))
+	os.MkdirAll(path, os.ModePerm)
+
+	filename := path + "_" + "avatar"
+	if err := c.SaveUploadedFile(file, filename); err != nil {
+		return "", nil
+	}
+
+	cld, err := cloudinary.NewFromParams(os.Getenv("CLOUD_NAME"), os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+		return "", nil
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	public_id := "docs/sdk/go/" + filename
+	resp, err := cld.Upload.Upload(ctx, filename, uploader.UploadParams{
+		PublicID:       public_id,
+		Transformation: "c_crop,g_center/q_auto/f_auto",
+		Tags:           []string{"fruit"},
+	})
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	// cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: public_id})
+
+	pwd, _ := os.Getwd()
+	fmt.Println(pwd + "/" + filename)
+	os.Remove(pwd + "/" + filename)
+
+	return resp.URL, nil
+}
+
+func _setUserImage(ctx *gin.Context, user *models.User) error {
 	file, _ := ctx.FormFile("avatar")
 	if file == nil {
 		return nil

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"mime/multipart"
 	"net/http"
 
@@ -56,9 +55,14 @@ func (a *Auth) UpdateProfile(ctx *gin.Context) {
 	user := sub.(*models.User)
 	copier.Copy(&user, &form)
 
-	fmt.Printf("user: %v\n", user)
-	fmt.Printf("form: %v\n", form)
-	setUserImage(ctx, user)
+	img, err := setUserImage(ctx, user)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	user.Avatar = img
+
 	if err := a.DB.Save(&user).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
