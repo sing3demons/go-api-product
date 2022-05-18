@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/sing3demons/app/database"
-	"github.com/sing3demons/app/migrations"
+
 	"github.com/sing3demons/app/models"
 
 	"github.com/bxcodec/faker/v3"
@@ -20,8 +20,7 @@ func Load() {
 
 	if len(productsDB) == 0 || err != nil {
 		// Clean Database
-		db.DropTableIfExists("users", "products", "categories", "migrations")
-		migrations.Migrate()
+		// db.DropTableIfExists("users", "products", "categories", "migrations")
 
 		// Add Admin
 		log.Info("Creating admin...")

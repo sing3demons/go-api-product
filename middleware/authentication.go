@@ -1,11 +1,12 @@
 package middleware
 
 import (
-	"github.com/sing3demons/app/database"
-	"github.com/sing3demons/app/models"
 	"log"
 	"os"
 	"time"
+
+	"github.com/sing3demons/app/database"
+	"github.com/sing3demons/app/models"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -37,7 +38,8 @@ func Authenticate() *jwt.GinJWTMiddleware {
 			id := claims[identityKey]
 
 			db := database.GetDB()
-			if db.First(&user, uint(id.(float64))).RecordNotFound() {
+			if err := db.First(&user, uint(id.(float64))).Error; err != nil {
+				log.Printf("error: %v", err)
 				return nil
 			}
 
@@ -54,7 +56,8 @@ func Authenticate() *jwt.GinJWTMiddleware {
 			}
 
 			db := database.GetDB()
-			if db.Where("email = ?", form.Email).First(&user).RecordNotFound() {
+			if err := db.Where("email = ?", form.Email).First(&user).Error; err != nil {
+				log.Printf("error: %v", err)
 				return nil, jwt.ErrFailedAuthentication
 			}
 

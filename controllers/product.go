@@ -16,7 +16,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 //Product - struct
@@ -264,7 +264,7 @@ func (p *Product) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	}
 
-	if err := p.DB.Model(&product).Update(&form).Error; err != nil {
+	if err := p.DB.Model(&product).Save(&form).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error})
 		return
 	}

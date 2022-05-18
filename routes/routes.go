@@ -28,7 +28,7 @@ func Serve(r *gin.Engine) {
 		authGroup.POST("/register", authController.Register)
 		authGroup.POST("/login", middleware.Authenticate().LoginHandler)
 		authGroup.GET("/profile", authenticate, authController.GetProfile)
-		authGroup.PATCH("/profile", authenticate, authController.UpdateProfile)
+		authGroup.PUT("/profile", authenticate, authController.UpdateProfile)
 	}
 
 	usersController := controllers.Users{DB: db}

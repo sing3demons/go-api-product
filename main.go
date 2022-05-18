@@ -11,9 +11,7 @@ import (
 	"time"
 
 	"github.com/sing3demons/app/database"
-	"github.com/sing3demons/app/migrations"
 	"github.com/sing3demons/app/routes"
-	"github.com/sing3demons/app/seeds"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -39,10 +37,8 @@ func main() {
 		}
 	}
 
-	database.InitDB()
-	defer database.CloseDB()
-	migrations.Migrate()
-	seeds.Load()
+	database.ConnenctDB()
+	// seeds.Load()
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true

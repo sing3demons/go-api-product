@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 //Users - receiver adater
@@ -112,7 +112,7 @@ func (u *Users) Update(ctx *gin.Context) {
 		user.Password = user.GenerateEncryptedPassword()
 	}
 
-	if err := u.DB.Model(&user).Update(&form).Error; err != nil {
+	if err := u.DB.Model(&user).Save(&form).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}

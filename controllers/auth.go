@@ -1,13 +1,15 @@
 package controllers
 
 import (
-	"github.com/sing3demons/app/models"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 
+	"github.com/sing3demons/app/models"
+	"gorm.io/gorm"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
-	"github.com/jinzhu/gorm"
 )
 
 //Auth - receiver adater
@@ -44,17 +46,20 @@ func (a *Auth) GetProfile(ctx *gin.Context) {
 
 //UpdateProfile - patch
 func (a *Auth) UpdateProfile(ctx *gin.Context) {
-	var form updateProfileForm
+	form := updateProfileForm{}
 	if err := ctx.ShouldBind(&form); err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
 	sub, _ := ctx.Get("sub")
 	user := sub.(*models.User)
+	copier.Copy(&user, &form)
 
+	fmt.Printf("user: %v\n", user)
+	fmt.Printf("form: %v\n", form)
 	setUserImage(ctx, user)
-	if err := a.DB.Model(user).Update(&form).Error; err != nil {
+	if err := a.DB.Save(&user).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
@@ -71,6 +76,7 @@ func (a *Auth) Register(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error(), "message": "ลงทะเบียนไม่สำเร็จ"})
 		return
 	}
+
 	var user models.User
 	copier.Copy(&user, &form)
 	user.Password = user.GenerateEncryptedPassword()
