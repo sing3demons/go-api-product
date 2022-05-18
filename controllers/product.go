@@ -54,7 +54,7 @@ type productRespons struct {
 	} `json:"category"`
 }
 
-type producsPaging struct {
+type productsPaging struct {
 	Items  []productRespons `json:"items"`
 	Paging *pagingResult    `json:"paging"`
 }
@@ -64,7 +64,7 @@ func (p *Product) FindAll(ctx *gin.Context) {
 	query1CacheKey := "items::product"
 	query2CacheKey := "items::page"
 
-	var serializedProduct []productRespons
+	serializedProduct := []productRespons{}
 	var paging *pagingResult
 
 	cacheItems, err := p.Cacher.MGet([]string{query1CacheKey, query2CacheKey})
@@ -75,13 +75,7 @@ func (p *Product) FindAll(ctx *gin.Context) {
 	productJS := cacheItems[0]
 	pageJS := cacheItems[1]
 
-	// fmt.Println("productJS: ", len(productJS.(string)))
-	// fmt.Println("pageJS: ", len(pageJS.(string)))
-
-	// Found query #1 cache
 	if productJS != nil && len(productJS.(string)) > 0 {
-		// ctx.Log("cache hit")
-
 		err := json.Unmarshal([]byte(productJS.(string)), &serializedProduct)
 		if err != nil {
 			p.Cacher.Del(query1CacheKey)
@@ -92,29 +86,18 @@ func (p *Product) FindAll(ctx *gin.Context) {
 
 	itemToCaches := map[string]interface{}{}
 
-	// var paginationItem pagination
 	var paginationItem *pagingResult
 	if productJS == nil {
 		var products []models.Product
-		query := p.DB.Preload("Category").Order("id desc")
-		if category := ctx.Query("category"); category != "" {
-			c, _ := strconv.Atoi(category)
-			query = query.Where("category_id = ?", c)
-		}
-
-		// paginationItem = pagination{ctx: ctx, query: query, records: &products}
-		pagination := pagination{ctx: ctx, query: query, records: &products}
+		pagination := pagination{ctx: ctx, query: p.DB, records: &products}
+		// pagination := NewPaginationHandler(ctx, p.store, &products)
 		paginationItem = pagination.paginate()
 		copier.Copy(&serializedProduct, &products)
 
 		itemToCaches[query1CacheKey] = serializedProduct
 	}
 
-	// Found query #2 cache
 	if pageJS != nil && len(pageJS.(string)) > 0 {
-		// ctx.Log("cache hit")
-		// counter, err = strconv.Atoi(counterJS.(string))
-
 		err := json.Unmarshal([]byte(pageJS.(string)), &paging)
 		if err != nil {
 			p.Cacher.Del(query2CacheKey)
@@ -127,12 +110,9 @@ func (p *Product) FindAll(ctx *gin.Context) {
 		itemToCaches[query2CacheKey] = paging
 	}
 
-	// fmt.Println("Found query #2 cache: ", itemToCaches[query2CacheKey])
-
-	// fmt.Println("check...", itemToCaches[query1CacheKey])
 	if len(itemToCaches) > 0 {
 		timeToExpire := 10 * time.Second // m
-		fmt.Println("MSET")
+		fmt.Println("M_SET")
 
 		// Set cache using MSET
 		err := p.Cacher.MSet(itemToCaches)
@@ -151,65 +131,7 @@ func (p *Product) FindAll(ctx *gin.Context) {
 		}
 	}
 
-	// serializedProduct := []productRespons{}
-	// copier.Copy(&serializedProduct, &products)
-
-	ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
-}
-
-// FindAll - query-database-all
-func (p *Product) Find_All(ctx *gin.Context) {
-	cacheProduct := "items::all"
-	cachePage := "items::page"
-
-	cacheItems, err := p.Cacher.Get(cacheProduct)
-	cacheItemPage, _ := p.Cacher.Get(cachePage)
-	if err != nil {
-		log.Println(err)
-	}
-
-	if len(cacheItems) > 0 && len(cacheItemPage) > 0 {
-		fmt.Println("Get...")
-		var items []productRespons
-		var page *pagingResult
-		if err := json.Unmarshal([]byte(cacheItems), &items); err != nil {
-			fmt.Println(err.Error())
-			//json: Unmarshal(non-pointer main.Request)
-		}
-		if err = json.Unmarshal([]byte(cacheItemPage), &page); err != nil {
-			fmt.Println(err.Error())
-			//json: Unmarshal(non-pointer main.Request)
-		}
-
-		ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: items, Paging: page}})
-		return
-	}
-
-	var products []models.Product
-
-	query := p.DB.Preload("Category").Order("id desc")
-
-	if category := ctx.Query("category"); category != "" {
-		c, _ := strconv.Atoi(category)
-		query = query.Where("category_id = ?", c)
-	}
-
-	pagination := pagination{ctx: ctx, query: query, records: &products}
-	paging := pagination.paginate()
-
-	serializedProduct := []productRespons{}
-	copier.Copy(&serializedProduct, &products)
-	timeToExpire := 10 * time.Second // 5m
-	p.Cacher.Set(cacheProduct, serializedProduct, timeToExpire)
-	p.Cacher.Set(cachePage, paging, timeToExpire)
-
-	resp := map[string]interface{}{
-		"items": serializedProduct,
-		"page":  paging,
-	}
-	fmt.Println("Set...")
-	// ctx.JSON(http.StatusOK, gin.H{"products": producsPaging{Items: serializedProduct, Paging: paging}})
-	ctx.JSON(http.StatusOK, gin.H{"products": resp})
+	ctx.JSON(http.StatusOK, gin.H{"products": productsPaging{Items: serializedProduct, Paging: paging}})
 }
 
 // FindOne - first
@@ -264,7 +186,9 @@ func (p *Product) Update(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	}
 
-	if err := p.DB.Model(&product).Save(&form).Error; err != nil {
+	copier.Copy(&product, &form)
+
+	if err := p.DB.Save(&product).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error})
 		return
 	}

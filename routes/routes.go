@@ -9,14 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewCacherConfig() *cache.CacherConfig {
-	return &cache.CacherConfig{}
-}
-
 //Serve - middleware
 func Serve(r *gin.Engine) {
 	db := database.GetDB()
-	cacher := cache.NewCacher(NewCacherConfig())
+	cacher := cache.NewCacher(cache.NewCacherConfig())
 	v1 := r.Group("/api/v1")
 
 	authenticate := middleware.Authenticate().MiddlewareFunc()
