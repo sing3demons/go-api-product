@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"github.com/sing3demons/app/models"
 	"net/http"
+
+	"github.com/sing3demons/app/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
@@ -94,7 +95,7 @@ func (c *Category) Create(ctx *gin.Context) {
 //Update - update --> patch
 func (c *Category) Update(ctx *gin.Context) {
 	var form updateCategoryForm
-	if err := ctx.ShouldBind(&form); err != nil {
+	if err := ctx.ShouldBindJSON(&form); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
@@ -105,7 +106,8 @@ func (c *Category) Update(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.DB.Model(&category).Save(&form).Error; err != nil {
+	copier.Copy(&category, &form)
+	if err := c.DB.Save(&category).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error})
 		return
 	}

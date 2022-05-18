@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/sing3demons/app/cache"
-	"github.com/sing3demons/app/database"
 	"github.com/sing3demons/app/controllers"
+	"github.com/sing3demons/app/database"
 	"github.com/sing3demons/app/middleware"
 
 	"github.com/gin-gonic/gin"
@@ -44,6 +44,17 @@ func Serve(r *gin.Engine) {
 		usersGroup.PATCH("/:id/demote", usersController.Demote)
 	}
 
+	categoryController := controllers.Category{DB: db}
+	categoryGroup := v1.Group("/categories")
+	categoryGroup.GET("", categoryController.FindAll)
+	categoryGroup.GET("/:id", categoryController.FindOne)
+	categoryGroup.Use(authenticate, authorize)
+	{
+		categoryGroup.POST("", categoryController.Create)
+		categoryGroup.PATCH("/:id", categoryController.Update)
+		categoryGroup.DELETE("/:id", categoryController.Delete)
+	}
+
 	productController := controllers.Product{DB: db, Cacher: cacher}
 	productGroup := v1.Group("/products")
 	productGroup.GET("", productController.FindAll)
@@ -56,14 +67,4 @@ func Serve(r *gin.Engine) {
 		productGroup.DELETE("/:id", productController.Delete)
 	}
 
-	categoryController := controllers.Category{DB: db}
-	categoryGroup := v1.Group("/categories")
-	categoryGroup.GET("", categoryController.FindAll)
-	categoryGroup.GET("/:id", categoryController.FindOne)
-	categoryGroup.Use(authenticate, authorize)
-	{
-		categoryGroup.POST("", categoryController.Create)
-		categoryGroup.PATCH("/:id", categoryController.Update)
-		categoryGroup.DELETE("/:id", categoryController.Delete)
-	}
 }

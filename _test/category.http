@@ -1,0 +1,41 @@
+@apiUrl=http://127.0.0.1:8080/api/v1/categories
+
+### GET http://127.0.0.1:8080/api/v1/categories | /categories/:id
+GET {{apiUrl}}/ HTTP/1.1
+
+###GET http://127.0.0.1:8080/api/v1/categories/:id
+GET {{apiUrl}}/1
+
+#################################################################
+# @name auth
+POST http://127.0.0.1:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+   "email": "admin@kp.com",
+    "password": "123456"
+}
+
+@token = {{auth.response.body.$.token}}
+### http://127.0.0.1:8080/api/v1/categories
+POST {{apiUrl}}/ HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: : application/json
+
+{
+    "name": "GPU2"
+}
+
+### PATCH http://127.0.0.1:8080/api/v1/categories/:id
+PATCH  {{apiUrl}}/1 HTTP/1.1
+Authorization: Bearer {{token}}
+
+{
+    "name": "CPU"
+}
+
+### DELETE http://127.0.0.1:8080/api/v1/categories/:id
+DELETE  {{apiUrl}}/4 HTTP/1.1
+Authorization: Bearer {{token}}
+
+
