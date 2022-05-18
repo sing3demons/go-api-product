@@ -1,0 +1,57 @@
+@apiUrl=http://127.0.0.1:8080/api/v1
+### http://127.0.0.1:8080/api/v1/auth/login
+# @name auth
+POST {{apiUrl}}/auth/login
+Content-Type: application/json
+
+{
+   "email": "admin@kp.com",
+    "password": "123456"
+}
+
+@token = {{auth.response.body.$.token}}
+
+### GET http://127.0.0.1:8080/api/v1/user | /user/:id
+GET {{apiUrl}}/users
+Authorization: Bearer {{token}}
+
+
+### POST http://127.0.0.1:8080/api/v1/user
+POST  {{apiUrl}}/users
+Authorization: Bearer {{token}}
+
+{
+    "name": "test22",
+    "email": "test2@test.com",
+    "password": "123456"
+
+}
+
+### GET http://127.0.0.1:8080/api/v1/user/:id
+GET {{apiUrl}}/users/5
+Authorization: Bearer {{token}}
+
+### DELETE http://127.0.0.1:8080/api/v1/user/:id
+DELETE {{apiUrl}}/users/5
+Authorization: Bearer {{token}}
+
+### PATCH http://127.0.0.1:8080/api/v1/user/:id
+PATCH {{apiUrl}}/users/5
+Authorization: Bearer {{token}}
+
+{
+    "name": "test2",
+    "email": "test2@test.com",
+    "password": "123456"
+
+}
+
+### PATCH http://127.0.0.1:8080/api/v1/user/:id/promote
+PATCH {{apiUrl}}/users/5/promote
+Authorization: Bearer {{token}}
+
+### PATCH http://127.0.0.1:8080/api/v1/user/:id/demote
+PATCH {{apiUrl}}/users/5/demote
+Authorization: Bearer {{token}}
+
+

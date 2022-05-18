@@ -117,7 +117,9 @@ func (u *Users) Update(ctx *gin.Context) {
 		user.Password = user.GenerateEncryptedPassword()
 	}
 
-	if err := u.DB.Model(&user).Save(&form).Error; err != nil {
+	copier.Copy(&user, &form)
+
+	if err := u.DB.Save(&user).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
