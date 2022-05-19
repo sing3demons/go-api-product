@@ -61,7 +61,7 @@ func (a *Auth) UpdateProfile(ctx *gin.Context) {
 		return
 	}
 
-	user.Avatar = img
+	user.Avatar = *img
 
 	if err := a.DB.Save(&user).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})

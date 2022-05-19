@@ -113,11 +113,11 @@ func (u *Users) Update(ctx *gin.Context) {
 		return
 	}
 
+	copier.Copy(&user, &form)
+
 	if form.Password != "" {
 		user.Password = user.GenerateEncryptedPassword()
 	}
-
-	copier.Copy(&user, &form)
 
 	if err := u.DB.Save(&user).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
@@ -175,10 +175,10 @@ func (u *Users) Demote(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"user": serializedUser})
 }
 
-func setUserImage(c *gin.Context, user *models.User) (imgUrl string, err error) {
-	file, _ := c.FormFile("avatar")
-	if file == nil {
-		return "", nil
+func setUserImage(c *gin.Context, user *models.User) (imgUrl *string, err error) {
+	file, err := c.FormFile("avatar")
+	if file == nil || err != nil {
+		return nil, err
 	}
 
 	if user.Avatar != "" {
@@ -193,26 +193,11 @@ func setUserImage(c *gin.Context, user *models.User) (imgUrl string, err error) 
 
 	filename := path + "_" + "avatar"
 	if err := c.SaveUploadedFile(file, filename); err != nil {
-		return "", nil
+		return nil, err
 	}
 
-	cld, err := cloudinary.NewFromParams(os.Getenv("CLOUD_NAME"), os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
-		return "", nil
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	public_id := "docs/sdk/go/" + filename
-	resp, err := cld.Upload.Upload(ctx, filename, uploader.UploadParams{
-		PublicID:       public_id,
-		Transformation: "c_crop,g_center/q_auto/f_auto",
-		Tags:           []string{"fruit"},
-	})
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
-	}
+	// -> todo
+	url, err := cloudinaryUpload(filename)
 
 	// cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: public_id})
 
@@ -220,7 +205,7 @@ func setUserImage(c *gin.Context, user *models.User) (imgUrl string, err error) 
 	fmt.Println(pwd + "/" + filename)
 	os.Remove(pwd + "/" + filename)
 
-	return resp.URL, nil
+	return url, nil
 }
 
 func _setUserImage(ctx *gin.Context, user *models.User) error {
@@ -258,4 +243,25 @@ func (u *Users) findUserByID(ctx *gin.Context) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+func cloudinaryUpload(filename string) (url *string, err error) {
+	cld, err := cloudinary.NewFromParams(os.Getenv("CLOUD_NAME"), os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
+	if err != nil {
+		return nil, err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	public_id := "docs/sdk/go/" + filename
+	resp, err := cld.Upload.Upload(ctx, filename, uploader.UploadParams{
+		PublicID:       public_id,
+		Transformation: "c_crop,g_center/q_auto/f_auto",
+		Tags:           []string{"fruit"},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp.URL, nil
 }
