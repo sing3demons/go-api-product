@@ -226,14 +226,21 @@ func (p *Product) setProductImage(ctx *gin.Context, products *models.Product) er
 	}
 
 	path := "uploads/products/" + strconv.Itoa(int(products.ID))
-	os.MkdirAll(path, 0775)
+	os.MkdirAll(path, os.ModePerm)
 
-	filename := path + "/" + file.Filename
+	filename := path + "_" + "product"
 	if err := ctx.SaveUploadedFile(file, filename); err != nil {
 		return err
 	}
 
-	products.Image = os.Getenv("HOST") + "/" + filename
+	url, err := cloudinaryUpload(filename)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("url %s\n", *url)
+
+	products.Image = *url
 	p.DB.Save(products)
 
 	return nil

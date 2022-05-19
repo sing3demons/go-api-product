@@ -196,9 +196,7 @@ func setUserImage(c *gin.Context, user *models.User) (imgUrl *string, err error)
 		return nil, err
 	}
 
-	// -> todo
 	url, err := cloudinaryUpload(filename)
-
 	// cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: public_id})
 
 	pwd, _ := os.Getwd()
