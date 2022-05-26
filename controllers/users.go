@@ -243,15 +243,22 @@ func (u *Users) findUserByID(ctx *gin.Context) (*models.User, error) {
 	return &user, nil
 }
 
-func cloudinaryUpload(filename string) (url *string, err error) {
+func NewCloudinary(filename string) (*cloudinary.Cloudinary, string, error) {
 	cld, err := cloudinary.NewFromParams(os.Getenv("CLOUD_NAME"), os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
+
+	public_id := "docs/sdk/go/" + filename
+	return cld, public_id, nil
+}
+
+func cloudinaryUpload(filename string) (url *string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	public_id := "docs/sdk/go/" + filename
+	cld, public_id, err := NewCloudinary(filename)
+
 	resp, err := cld.Upload.Upload(ctx, filename, uploader.UploadParams{
 		PublicID:       public_id,
 		Transformation: "c_crop,g_center/q_auto/f_auto",

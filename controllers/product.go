@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"github.com/sing3demons/app/cache"
 	"github.com/sing3demons/app/models"
 
@@ -188,12 +190,13 @@ func (p *Product) Update(ctx *gin.Context) {
 
 	copier.Copy(&product, &form)
 
+	p.setProductImage(ctx, product)
 	if err := p.DB.Save(&product).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error})
 		return
 	}
 
-	p.setProductImage(ctx, product)
+	// p.setProductImage(ctx, product)
 
 	var serializedProduct productRespons
 	copier.Copy(&serializedProduct, &product)
@@ -208,9 +211,34 @@ func (p *Product) Delete(ctx *gin.Context) {
 		return
 	}
 
+	// DestroyImage(product)
 	p.DB.Unscoped().Delete(&product)
 
 	ctx.Status(http.StatusNoContent)
+}
+
+func setEnvPath(ctx *gin.Context, name string, id uint) string {
+	path := "uploads/" + name + "/" + strconv.Itoa(int(id))
+	os.MkdirAll(path, os.ModePerm)
+	return path
+}
+
+func DestroyImage(product *models.Product) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	subPath := strings.Split(product.Image, "/")
+
+	fileName := subPath[10] + "/" + subPath[11] + "/" + subPath[12]
+	fmt.Printf("%s \n", fileName)
+
+	cld, public_id, err := NewCloudinary(fileName)
+	if err != nil {
+		return err
+	}
+
+	cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: public_id})
+	return nil
 }
 
 func (p *Product) setProductImage(ctx *gin.Context, products *models.Product) error {
@@ -225,8 +253,7 @@ func (p *Product) setProductImage(ctx *gin.Context, products *models.Product) er
 		os.Remove(pwd + products.Image)
 	}
 
-	path := "uploads/products/" + strconv.Itoa(int(products.ID))
-	os.MkdirAll(path, os.ModePerm)
+	path := setEnvPath(ctx, "products", products.ID)
 
 	filename := path + "_" + "product"
 	if err := ctx.SaveUploadedFile(file, filename); err != nil {
