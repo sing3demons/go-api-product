@@ -1,4 +1,4 @@
-@apiUrl=http://127.0.0.1:8080/api/v1/categories
+@apiUrl=https://go-kpsing.herokuapp.com
 
 ### GET http://127.0.0.1:8080/api/v1/categories | /categories/:id
 GET {{apiUrl}}/ HTTP/1.1
@@ -8,22 +8,22 @@ GET {{apiUrl}}/1
 
 #################################################################
 # @name auth
-POST http://127.0.0.1:8080/api/v1/auth/login
+POST {{apiUrl}}/api/v1/auth/login
 Content-Type: application/json
 
 {
-   "email": "admin@kp.com",
+   "email": "admin@sing.com",
     "password": "123456"
 }
 
 @token = {{auth.response.body.$.token}}
 ### http://127.0.0.1:8080/api/v1/categories
-POST {{apiUrl}}/ HTTP/1.1
+POST {{apiUrl}}/api/v1/categories HTTP/1.1
 Authorization: Bearer {{token}}
 Content-Type: : application/json
 
 {
-    "name": "GPU2"
+    "name": "CPU"
 }
 
 ### PATCH http://127.0.0.1:8080/api/v1/categories/:id

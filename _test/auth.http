@@ -1,12 +1,13 @@
-@url=http://127.0.0.1:8080/api/v1/auth
+# @url=http://127.0.0.1:8080/api/v1/auth
+@url=https://go-kpsing.herokuapp.com/api/v1/auth
 
 ### http://127.0.0.1:8080/api/v1/auth/register
 POST {{url}}/register
 Content-Type: application/json
 
 {
-    "email": "test@test.com",
-    "name":"test",
+    "email": "admin@sing.com",
+    "name":"sing",
     "password": "123456"
 }
 

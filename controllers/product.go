@@ -2,9 +2,7 @@ package controllers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -58,7 +56,7 @@ type productResponse struct {
 
 type productsPaging struct {
 	Items  []productResponse `json:"items"`
-	Paging *pagingResult    `json:"paging"`
+	Paging *pagingResult     `json:"paging"`
 }
 
 // FindAll godoc
@@ -71,75 +69,20 @@ type productsPaging struct {
 // @Success 200 {object} productsPaging
 // @Router /api/v1/products [get]
 func (p *Product) FindAll(ctx *gin.Context) {
-	query1CacheKey := "items::product"
-	query2CacheKey := "items::page"
+	var products []models.Product
+
+	// query := p.DB.Preload("Category").Order("id desc")
+
+	// if category := ctx.Query("category"); category != "" {
+	// 	c, _ := strconv.Atoi(category)
+	// 	query = query.Where("category_id = ?", c)
+	// }
+
+	pagination := pagination{ctx: ctx, query: p.DB, records: &products}
+	paging := pagination.paginate()
 
 	serializedProduct := []productResponse{}
-	var paging *pagingResult
-
-	cacheItems, err := p.Cacher.MGet([]string{query1CacheKey, query2CacheKey})
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	productJS := cacheItems[0]
-	pageJS := cacheItems[1]
-
-	if productJS != nil && len(productJS.(string)) > 0 {
-		err := json.Unmarshal([]byte(productJS.(string)), &serializedProduct)
-		if err != nil {
-			p.Cacher.Del(query1CacheKey)
-			log.Println(err.Error())
-		}
-
-	}
-
-	itemToCaches := map[string]interface{}{}
-
-	var paginationItem *pagingResult
-	if productJS == nil {
-		var products []models.Product
-		pagination := pagination{ctx: ctx, query: p.DB, records: &products}
-		// pagination := NewPaginationHandler(ctx, p.store, &products)
-		paginationItem = pagination.paginate()
-		copier.Copy(&serializedProduct, &products)
-
-		itemToCaches[query1CacheKey] = serializedProduct
-	}
-
-	if pageJS != nil && len(pageJS.(string)) > 0 {
-		err := json.Unmarshal([]byte(pageJS.(string)), &paging)
-		if err != nil {
-			p.Cacher.Del(query2CacheKey)
-			log.Println(err.Error())
-		}
-	}
-
-	if paging == nil {
-		paging = paginationItem
-		itemToCaches[query2CacheKey] = paging
-	}
-
-	if len(itemToCaches) > 0 {
-		timeToExpire := 10 * time.Second // m
-		fmt.Println("M_SET")
-
-		// Set cache using MSET
-		err := p.Cacher.MSet(itemToCaches)
-		if err != nil {
-			log.Println(err.Error())
-		}
-
-		// Set time to expire
-		keys := []string{}
-		for k := range itemToCaches {
-			keys = append(keys, k)
-		}
-		err = p.Cacher.Expires(keys, timeToExpire)
-		if err != nil {
-			log.Println(err.Error())
-		}
-	}
+	copier.Copy(&serializedProduct, &products)
 
 	ctx.JSON(http.StatusOK, gin.H{"products": productsPaging{Items: serializedProduct, Paging: paging}})
 }
@@ -270,7 +213,7 @@ func (p *Product) Delete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
-func setEnvPath(ctx *gin.Context, name string, id uint) string {
+func setEnvPath(name string, id uint) string {
 	path := "uploads/" + name + "/" + strconv.Itoa(int(id))
 	os.MkdirAll(path, os.ModePerm)
 	return path
@@ -306,7 +249,7 @@ func (p *Product) setProductImage(ctx *gin.Context, products *models.Product) er
 		os.Remove(pwd + products.Image)
 	}
 
-	path := setEnvPath(ctx, "products", products.ID)
+	path := setEnvPath("products", products.ID)
 
 	filename := path + "_" + "product"
 	if err := ctx.SaveUploadedFile(file, filename); err != nil {
