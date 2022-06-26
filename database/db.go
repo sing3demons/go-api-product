@@ -12,7 +12,7 @@ import (
 var db *gorm.DB
 
 func ConnenctDB() {
-	dsn := os.Getenv("DATABASE")
+	dsn := os.Getenv("DATABASE_URL")
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("failed to connect database")
