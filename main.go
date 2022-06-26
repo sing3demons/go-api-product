@@ -16,6 +16,9 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	docs "github.com/sing3demons/app/docs"
+	swagger "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 var (
@@ -23,6 +26,15 @@ var (
 	buildtime   = time.Now().String()
 )
 
+// @title Swagger GO-API-PRODUCT API
+// @version 1.0
+// @schemes https
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @host https://go-kpsing.herokuapp.com
+// @BasePath /
 func main() {
 	_, err := os.Create("/tmp/live")
 	if err != nil {
@@ -57,16 +69,12 @@ func main() {
 	r.Use(cors.New(corsConfig)) //cors
 	r.Static("/uploads", "./uploads")
 
-	r.GET("/healthz", func(c *gin.Context) {
-		c.Status(200)
-	})
+	docs.SwaggerInfo.BasePath = "/"
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
 
-	r.GET("/x", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"buildcommit": buildcommit,
-			"buildtime":   buildtime,
-		})
-	})
+	r.GET("/healthz", health)
+
+	r.GET("/x", buildX)
 
 	//สร้าง folder
 	uploadDirs := [...]string{"products", "users"}
@@ -103,4 +111,23 @@ func main() {
 	if err := s.Shutdown(timeoutCtx); err != nil {
 		fmt.Println(err)
 	}
+}
+
+// @Accept  json
+// @Produce  json
+// @Success 200
+// @Router /healthz [get]
+func health(c *gin.Context) {
+	c.Status(200)
+}
+
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} map[string]any
+// @Router /x [get]
+func buildX(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"build_commit": buildcommit,
+		"build_time":   buildtime,
+	})
 }

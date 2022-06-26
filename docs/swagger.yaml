@@ -1,0 +1,239 @@
+definitions:
+  controllers.pagingResult:
+    properties:
+      count:
+        type: integer
+      limit:
+        type: integer
+      nextPage:
+        type: integer
+      page:
+        type: integer
+      prevPage:
+        type: integer
+      totalPage:
+        type: integer
+    type: object
+  controllers.productResponse:
+    properties:
+      category:
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+        type: object
+      categoryId:
+        type: integer
+      desc:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+    required:
+    - categoryId
+    type: object
+  controllers.productsPaging:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/controllers.productResponse'
+        type: array
+      paging:
+        $ref: '#/definitions/controllers.pagingResult'
+    type: object
+info:
+  contact: {}
+  title: Swagger GO-API-PRODUCT API
+  version: "1.0"
+paths:
+  /api/v1/products:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.productsPaging'
+      summary: Show an products
+      tags:
+      - products
+    post:
+      consumes:
+      - multipart/form-data
+      description: add by form product
+      parameters:
+      - description: name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: desc
+        in: formData
+        name: desc
+        required: true
+        type: string
+      - description: price
+        in: formData
+        name: price
+        required: true
+        type: integer
+      - description: image
+        in: formData
+        name: image
+        required: true
+        type: file
+      - description: categoryId
+        in: formData
+        name: categoryId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.productResponse'
+      security:
+      - BearerAuth: []
+      summary: add an product
+      tags:
+      - products
+  /api/v1/products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete by json product
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.productResponse'
+        "404":
+          description: '{"error": "not found"}'
+          schema:
+            additionalProperties: true
+            type: object
+        "422":
+          description: Bad Request
+          schema:
+            type: string
+      summary: delete an product
+      tags:
+      - products
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.productResponse'
+      summary: FindOne - /:id
+      tags:
+      - products
+    patch:
+      consumes:
+      - multipart/form-data
+      description: update by form product
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: name
+        in: formData
+        name: name
+        type: string
+      - description: desc
+        in: formData
+        name: desc
+        type: string
+      - description: price
+        in: formData
+        name: price
+        type: integer
+      - description: image
+        in: formData
+        name: image
+        type: file
+      - description: categoryId
+        in: formData
+        name: categoryId
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.productResponse'
+      security:
+      - BearerAuth: []
+      summary: update an products
+      tags:
+      - products
+  /healthz:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+  /x:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+schemes:
+- https
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
