@@ -71,12 +71,12 @@ type productsPaging struct {
 func (p *Product) FindAll(ctx *gin.Context) {
 	var products []models.Product
 
-	// query := p.DB.Preload("Category").Order("id desc")
+	query := p.DB.Preload("Category").Order("id desc")
 
-	// if category := ctx.Query("category"); category != "" {
-	// 	c, _ := strconv.Atoi(category)
-	// 	query = query.Where("category_id = ?", c)
-	// }
+	if category := ctx.Query("category"); category != "" {
+		c, _ := strconv.Atoi(category)
+		query = query.Where("category_id = ?", c)
+	}
 
 	pagination := pagination{ctx: ctx, query: p.DB, records: &products}
 	paging := pagination.paginate()
