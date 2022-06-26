@@ -6,3 +6,6 @@ db_data
 main_app
 textfile.txt
 _data
+_test
+runtest-products
+.vscode

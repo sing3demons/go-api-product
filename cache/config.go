@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"fmt"
 	"os"
 )
 
@@ -26,8 +25,7 @@ func NewCacherConfig() *CacherConfig {
 }
 
 func (cfg *CacherConfig) Endpoint() string {
-	redis := os.Getenv("REDIS_HOST")
-	return fmt.Sprintf("%s:6379", redis)
+	return os.Getenv("REDIS_HOST")
 }
 
 func (cfg *CacherConfig) Password() string {
