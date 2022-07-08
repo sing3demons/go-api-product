@@ -1,4 +1,27 @@
 definitions:
+  controllers.authForm:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  controllers.authResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   controllers.pagingResult:
     properties:
       count:
@@ -47,11 +70,128 @@ definitions:
       paging:
         $ref: '#/definitions/controllers.pagingResult'
     type: object
+  controllers.userResponse:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  middleware.login:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
 info:
   contact: {}
   title: Swagger GO-API-PRODUCT API
   version: "1.0"
 paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: login by form user
+      parameters:
+      - description: login
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/middleware.login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: login
+      tags:
+      - auth
+  /api/v1/auth/profile:
+    get:
+      consumes:
+      - application/json
+      description: get by form user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userResponse'
+      security:
+      - BearerAuth: []
+      summary: get an user profile
+      tags:
+      - auth
+    put:
+      consumes:
+      - multipart/form-data
+      description: add by form user
+      parameters:
+      - description: name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: avatar
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userResponse'
+      security:
+      - BearerAuth: []
+      summary: update an user
+      tags:
+      - auth
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: add by form user
+      parameters:
+      - description: authForm
+        in: body
+        name: authForm
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.authForm'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.authResponse'
+      summary: add an user
+      tags:
+      - auth
   /api/v1/products:
     get:
       consumes:
@@ -231,6 +371,7 @@ paths:
             type: object
 schemes:
 - https
+- http
 securityDefinitions:
   BearerAuth:
     in: header

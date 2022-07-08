@@ -11,7 +11,7 @@ import (
 
 var db *gorm.DB
 
-func ConnenctDB() {
+func ConnectDB() {
 	dsn := os.Getenv("DATABASE_URL")
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

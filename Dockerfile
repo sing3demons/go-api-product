@@ -17,6 +17,13 @@ WORKDIR /
 
 COPY --from=builder /go/bin/app /app
 COPY ./config ./config
+
+RUN adduser -u 1001 -D -s /bin/sh -g ping 1001
+RUN chown 1001:1001 /app
+
+# RUN chmod +x /app
+USER 1001
+
 EXPOSE 8080
 
 

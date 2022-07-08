@@ -259,7 +259,7 @@ func cloudinaryUpload(filename string) (url *string, err error) {
 
 	cld, public_id, err := NewCloudinary(filename)
 
-	resp, err := cld.Upload.Upload(ctx, filename, uploader.UploadParams{
+	_, err = cld.Upload.Upload(ctx, filename, uploader.UploadParams{
 		PublicID:       public_id,
 		Transformation: "c_crop,g_center/q_auto/f_auto",
 		Tags:           []string{"fruit"},
@@ -268,5 +268,16 @@ func cloudinaryUpload(filename string) (url *string, err error) {
 		return nil, err
 	}
 
-	return &resp.URL, nil
+	// Instantiate an object for the asset with public ID "my_image"
+	my_image, err := cld.Image(public_id)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(my_image.String())
+	result, err := my_image.String()
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }

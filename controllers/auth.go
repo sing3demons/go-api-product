@@ -35,6 +35,15 @@ type authResponse struct {
 }
 
 //GetProfile - /auth/profile => JWT => sub (UserID) => User => User
+// GetProfile godoc
+// @Summary get an user profile
+// @Description get by form user
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} userResponse
+// @Router /api/v1/auth/profile [get]
 func (a *Auth) GetProfile(ctx *gin.Context) {
 	sub, _ := ctx.Get("sub")
 	user := sub.(*models.User)
@@ -43,7 +52,18 @@ func (a *Auth) GetProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"user": serializedUser})
 }
 
-//UpdateProfile - patch
+// UpdateProfile godoc
+// @Summary update an user
+// @Description add by form user
+// @Tags auth
+// @Accept  mpfd
+// @Produce  json
+// @Security BearerAuth
+// @Param name formData string true "name"
+// @Param email formData string true "email"
+// @Param avatar formData file true "avatar"
+// @Success 200 {object} userResponse
+// @Router /api/v1/auth/profile [put]
 func (a *Auth) UpdateProfile(ctx *gin.Context) {
 	form := updateProfileForm{}
 	if err := ctx.ShouldBind(&form); err != nil {
@@ -73,7 +93,15 @@ func (a *Auth) UpdateProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"user": serializedUser})
 }
 
-//Register - sign up
+// Register godoc
+// @Summary add an user
+// @Description add by form user
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param authForm body authForm true "authForm"
+// @Success 201 {object} authResponse
+// @Router /api/v1/auth/register [post]
 func (a *Auth) Register(ctx *gin.Context) {
 	var form authForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {

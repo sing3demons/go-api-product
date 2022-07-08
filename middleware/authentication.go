@@ -21,7 +21,16 @@ type login struct {
 var identityKey = "sub"
 var exp = time.Hour * 72
 
-// Authenticate - public
+// Authenticate - publicLoginHandler
+// Login godoc
+// @Summary login
+// @Description login by form user
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param login body login true "login"
+// @Success 200 string token
+// @Router /api/v1/auth/login [post]
 func Authenticate() *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		// secret key

@@ -28,7 +28,7 @@ var (
 
 // @title Swagger GO-API-PRODUCT API
 // @version 1.0
-// @schemes https
+// @schemes https http
 
 // @securityDefinitions.apikey BearerAuth
 // @in header
@@ -49,7 +49,7 @@ func main() {
 		}
 	}
 
-	database.ConnenctDB()
+	database.ConnectDB()
 	// seeds.Load()
 
 	corsConfig := cors.DefaultConfig()
