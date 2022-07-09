@@ -22,6 +22,20 @@ definitions:
       name:
         type: string
     type: object
+  controllers.createUserForm:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
   controllers.pagingResult:
     properties:
       count:
@@ -69,6 +83,16 @@ definitions:
         type: array
       paging:
         $ref: '#/definitions/controllers.pagingResult'
+    type: object
+  controllers.updateUserForm:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
     type: object
   controllers.userResponse:
     properties:
@@ -348,6 +372,165 @@ paths:
       summary: update an products
       tags:
       - products
+  /api/v1/users:
+    get:
+      consumes:
+      - application/json
+      description: get by form users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.userResponse'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: get an users
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: add by form user
+      parameters:
+      - description: create-user-form
+        in: body
+        name: createUserForm
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.createUserForm'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.userResponse'
+      security:
+      - BearerAuth: []
+      summary: add an user
+      tags:
+      - user
+  /api/v1/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete by form user
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+      security:
+      - BearerAuth: []
+      summary: delete an user
+      tags:
+      - user
+    get:
+      consumes:
+      - application/json
+      description: get by form user
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userResponse'
+      security:
+      - BearerAuth: []
+      summary: get an user
+      tags:
+      - user
+    patch:
+      consumes:
+      - application/json
+      description: update by form user
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: update-user-form
+        in: body
+        name: updateUserForm
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.updateUserForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userResponse'
+      security:
+      - BearerAuth: []
+      summary: update an user
+      tags:
+      - user
+  /api/v1/users/{id}/demote:
+    patch:
+      consumes:
+      - application/json
+      description: update by form user
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userResponse'
+      security:
+      - BearerAuth: []
+      summary: update an user
+      tags:
+      - user
+  /api/v1/users/{id}/promote:
+    patch:
+      consumes:
+      - application/json
+      description: update by form user
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userResponse'
+      security:
+      - BearerAuth: []
+      summary: update an user
+      tags:
+      - user
   /healthz:
     get:
       consumes:

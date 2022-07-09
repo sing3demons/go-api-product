@@ -1,55 +1,24 @@
 package controllers
 
 import (
-	"context"
-	"fmt"
 	"net/http"
-	"os"
-	"strconv"
-	"strings"
-	"time"
 
-	"github.com/cloudinary/cloudinary-go"
-	"github.com/cloudinary/cloudinary-go/api/uploader"
-	"github.com/sing3demons/app/database"
 	"github.com/sing3demons/app/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
-	"gorm.io/gorm"
 )
 
-//Users - receiver adater
-type Users struct {
-	DB *gorm.DB
-}
-
-type createUserForm struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	Name     string `json:"name" binding:"required"`
-}
-
-type updateUserForm struct {
-	Email    string `json:"email" binding:"omitempty,email"`
-	Password string `json:"password" binding:"omitempty,min=6"`
-	Name     string `json:"name"`
-}
-
-type userResponse struct {
-	ID     uint   `json:"id"`
-	Name   string `json:"name"`
-	Email  string `json:"email" `
-	Avatar string `json:"avatar"`
-	Role   string `json:"role"`
-}
-
-type usersPaging struct {
-	Items  []userResponse `json:"items"`
-	Paging *pagingResult  `json:"paging"`
-}
-
 //FindAll - api/v1/users @GET
+// FindAll godoc
+// @Summary get an users
+// @Description get by form users
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Success 200 {object} []userResponse
+// @Router /api/v1/users [get]
 func (u *Users) FindAll(ctx *gin.Context) {
 	var users []models.User
 	query := u.DB.Order("id desc").Find(&users)
@@ -65,6 +34,16 @@ func (u *Users) FindAll(ctx *gin.Context) {
 }
 
 //Create - api/v1/users @POST
+// Create godoc
+// @Summary add an user
+// @Description add by form user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param createUserForm body createUserForm true "create-user-form"
+// @Success 201 {object} userResponse
+// @Router /api/v1/users [post]
 func (u *Users) Create(ctx *gin.Context) {
 	var form createUserForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {
@@ -87,6 +66,16 @@ func (u *Users) Create(ctx *gin.Context) {
 }
 
 //FindOne - api/v1/users/:id @GET
+// FindOne godoc
+// @Summary get an user
+// @Description get by form user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param id path int true "ID"
+// @Success 200 {object} userResponse
+// @Router /api/v1/users/{id} [get]
 func (u *Users) FindOne(ctx *gin.Context) {
 	user, err := u.findUserByID(ctx)
 	if err != nil {
@@ -100,6 +89,17 @@ func (u *Users) FindOne(ctx *gin.Context) {
 }
 
 //Update - api/v1/users/:id @PATCH
+// Update godoc
+// @Summary update an user
+// @Description update by form user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param id path int true "ID"
+// @Param updateUserForm body updateUserForm false "update-user-form"
+// @Success 200 {object} userResponse
+// @Router /api/v1/users/{id} [patch]
 func (u *Users) Update(ctx *gin.Context) {
 	var form updateUserForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {
@@ -131,6 +131,16 @@ func (u *Users) Update(ctx *gin.Context) {
 }
 
 //Delete - api/v1/users/:id @DELETE
+// Delete godoc
+// @Summary delete an user
+// @Description delete by form user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param id path int true "ID"
+// @Success 204
+// @Router /api/v1/users/{id} [delete]
 func (u *Users) Delete(ctx *gin.Context) {
 	user, err := u.findUserByID(ctx)
 	if err != nil {
@@ -144,6 +154,16 @@ func (u *Users) Delete(ctx *gin.Context) {
 }
 
 //Promote - api/v1/users/:id/promote @PATCH
+// Promote godoc
+// @Summary update an user
+// @Description update by form user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param id path int true "ID"
+// @Success 200 {object} userResponse
+// @Router /api/v1/users/{id}/promote [patch]
 func (u *Users) Promote(ctx *gin.Context) {
 	user, err := u.findUserByID(ctx)
 	if err != nil {
@@ -152,7 +172,7 @@ func (u *Users) Promote(ctx *gin.Context) {
 	}
 
 	user.Promote()
-	u.DB.Save(user)
+	u.DB.Save(&user)
 
 	var serializedUser userResponse
 	copier.Copy(&serializedUser, &user)
@@ -160,6 +180,16 @@ func (u *Users) Promote(ctx *gin.Context) {
 }
 
 //Demote - api/v1/users/:id/demote @PATCH
+// Demote godoc
+// @Summary update an user
+// @Description update by form user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param id path int true "ID"
+// @Success 200 {object} userResponse
+// @Router /api/v1/users/{id}/demote [patch]
 func (u *Users) Demote(ctx *gin.Context) {
 	user, err := u.findUserByID(ctx)
 	if err != nil {
@@ -168,116 +198,9 @@ func (u *Users) Demote(ctx *gin.Context) {
 	}
 
 	user.Demote()
-	u.DB.Save(user)
+	u.DB.Save(&user)
 
 	var serializedUser userResponse
 	copier.Copy(&serializedUser, &user)
 	ctx.JSON(http.StatusOK, gin.H{"user": serializedUser})
-}
-
-func setUserImage(c *gin.Context, user *models.User) (imgUrl *string, err error) {
-	file, err := c.FormFile("avatar")
-	if file == nil || err != nil {
-		return nil, err
-	}
-
-	if user.Avatar != "" {
-		user.Avatar = strings.Replace(user.Avatar, os.Getenv("HOST"), "", 1)
-		pwd, _ := os.Getwd()
-		os.Remove(pwd + user.Avatar)
-	}
-
-	// filename := strconv.Itoa(int(user.ID)) + "_" + file.Filename
-	path := "uploads/users/" + strconv.Itoa(int(user.ID))
-	os.MkdirAll(path, os.ModePerm)
-
-	filename := path + "_" + "avatar"
-	if err := c.SaveUploadedFile(file, filename); err != nil {
-		return nil, err
-	}
-
-	url, err := cloudinaryUpload(filename)
-	// cld.Upload.Destroy(ctx, uploader.DestroyParams{PublicID: public_id})
-
-	pwd, _ := os.Getwd()
-	fmt.Println(pwd + "/" + filename)
-	os.Remove(pwd + "/" + filename)
-
-	return url, nil
-}
-
-func _setUserImage(ctx *gin.Context, user *models.User) error {
-	file, _ := ctx.FormFile("avatar")
-	if file == nil {
-		return nil
-	}
-
-	if user.Avatar != "" {
-		user.Avatar = strings.Replace(user.Avatar, os.Getenv("HOST"), "", 1)
-		pwd, _ := os.Getwd()
-		os.Remove(pwd + user.Avatar)
-	}
-
-	path := "uploads/users/" + strconv.Itoa(int(user.ID))
-	os.MkdirAll(path, os.ModePerm)
-	filename := path + "/" + file.Filename
-	if err := ctx.SaveUploadedFile(file, filename); err != nil {
-		return nil
-	}
-
-	db := database.GetDB()
-	user.Avatar = os.Getenv("HOST") + "/" + filename
-	db.Save(user)
-
-	return nil
-}
-
-func (u *Users) findUserByID(ctx *gin.Context) (*models.User, error) {
-	id := ctx.Param("id")
-	var user models.User
-
-	if err := u.DB.First(&user, id).Error; err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
-func NewCloudinary(filename string) (*cloudinary.Cloudinary, string, error) {
-	cld, err := cloudinary.NewFromParams(os.Getenv("CLOUD_NAME"), os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
-	if err != nil {
-		return nil, "", err
-	}
-
-	public_id := "docs/sdk/go/" + filename
-	return cld, public_id, nil
-}
-
-func cloudinaryUpload(filename string) (url *string, err error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	cld, public_id, err := NewCloudinary(filename)
-
-	_, err = cld.Upload.Upload(ctx, filename, uploader.UploadParams{
-		PublicID:       public_id,
-		Transformation: "c_crop,g_center/q_auto/f_auto",
-		Tags:           []string{"fruit"},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// Instantiate an object for the asset with public ID "my_image"
-	my_image, err := cld.Image(public_id)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(my_image.String())
-	result, err := my_image.String()
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
 }
