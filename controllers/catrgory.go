@@ -36,7 +36,14 @@ type updateCategoryForm struct {
 	Name string `json:"name"`
 }
 
-// FindAll - query all categories
+// FindAll godoc
+// @Summary Show an categories
+// @Description get by form categories
+// @Tags categories
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} []allCategoryResponse
+// @Router /api/v1/categories [get]
 func (c *Category) FindAll(ctx *gin.Context) {
 	var categories []models.Category
 
@@ -58,7 +65,15 @@ func (c *Category) FindAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"category": serializedCategory})
 }
 
-// FindOne - first query
+// FindOne godoc
+// @Summary Show an category
+// @Description get by form category
+// @Tags categories
+// @Accept  json
+// @Produce  json
+// @Param id path string true "id"
+// @Success 200 {object} allCategoryResponse
+// @Router /api/v1/categories/{id} [get]
 func (c *Category) FindOne(ctx *gin.Context) {
 	category, err := c.findCategoryByID(ctx)
 	if err != nil {
@@ -71,7 +86,16 @@ func (c *Category) FindOne(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"category": serializedCategory})
 }
 
-// Create - create
+// Create godoc
+// @Summary add an category
+// @Description add by form category
+// @Tags categories
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param name body createCategoryForm true "name"
+// @Success 201 {object} allCategoryResponse
+// @Router /api/v1/categories [post]
 func (c *Category) Create(ctx *gin.Context) {
 	var form createCategoryForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {
@@ -92,7 +116,17 @@ func (c *Category) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"category": serializedCategory})
 }
 
-//Update - update --> patch
+// UpdateAll godoc
+// @Summary update an category
+// @Description update by form category
+// @Tags categories
+// @Accept  json
+// @Produce  json
+// @Security BearerAuth
+// @Param id path string true "id"
+// @Param name body updateCategoryForm true "name"
+// @Success 200 {object} allCategoryResponse
+// @Router /api/v1/categories/{id} [patch]
 func (c *Category) Update(ctx *gin.Context) {
 	var form updateCategoryForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {
@@ -118,7 +152,18 @@ func (c *Category) Update(ctx *gin.Context) {
 
 }
 
-// Delete - remove category
+// Delete godoc
+// @Summary	delete an category
+// @Description	delete by json category
+// @Tags	categories
+// @Accept	json
+// @Produce	json
+// @Security BearerAuth
+// @Param id path string true "id"
+// @Success 204
+// @Failure	422  {object} string "Bad Request"
+// @Failure	404  {object}  map[string]any	"{"error": "not found"}"
+// @Router /api/v1/categories/{id} [delete]
 func (c *Category) Delete(ctx *gin.Context) {
 	category, err := c.findCategoryByID(ctx)
 	if err != nil {

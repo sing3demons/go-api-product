@@ -195,6 +195,7 @@ func (p *Product) Update(ctx *gin.Context) {
 // @Tags	products
 // @Accept	json
 // @Produce	json
+// @Security BearerAuth
 // @Param id path string true "id"
 // @Success 200 {object} productResponse
 // @Failure	422  {object} string "Bad Request"
