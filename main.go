@@ -70,6 +70,9 @@ func main() {
 	r.Static("/uploads", "./uploads")
 
 	docs.SwaggerInfo.BasePath = "/"
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
+	})
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swagger.Handler))
 
 	r.GET("/healthz", health)
