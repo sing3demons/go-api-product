@@ -53,9 +53,9 @@ func main() {
 	// seeds.Load()
 
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowOrigins = []string{os.Getenv("ENV_URL")}
 	corsConfig.AddAllowHeaders("Authorization")
-	// config := cors.DefaultConfig()
+
 	// config.AllowOrigins = []string{
 	// 	"http://localhost:8080",
 	// }
